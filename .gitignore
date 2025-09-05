@@ -1,0 +1,74 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+frontend/coverage/
+
+# Next.js
+frontend/.next/
+frontend/out/
+.next/
+out/
+
+# Production
+build/
+dist/
+frontend/build/
+frontend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+frontend/.env*
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local development
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Vercel
+.vercel
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# Backend (if not needed for frontend deployment)
+backend/
+
+# Build artifacts
+frontend/.next/
+frontend/.vercel/
+frontend/out/
+
+# Cache
+.cache/
+frontend/.cache/
