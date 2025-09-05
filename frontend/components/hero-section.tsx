@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { GradientText } from '@/components/ui/gradient-text'
 import { AnimatedBackground } from '@/components/ui/animated-background'
@@ -10,7 +9,6 @@ import {
   MotionDiv, 
   MotionH1, 
   MotionP, 
-  MagneticButton, 
   TypewriterText,
   staggerContainer,
   staggerItem,
@@ -21,13 +19,10 @@ import {
   MouseFollower
 } from '@/components/ui/motion-components'
 import { 
-  ArrowRight, 
   Zap, 
   Shield, 
   TrendingUp, 
   Bot,
-  Package,
-  Activity,
   Sparkles
 } from 'lucide-react'
 import { SimpleFAQ } from '@/components/simple-faq'
@@ -59,25 +54,33 @@ export function HeroSection() {
       icon: Bot,
       title: 'AI Agents',
       description: 'Autonomous investigation and recovery',
-      color: 'text-blue-500'
+      color: 'text-blue-500',
+      gradient: 'from-blue-500/20 to-blue-600/10',
+      shadowColor: 'rgba(59, 130, 246, 0.2)'
     },
     {
       icon: Zap,
       title: 'Real-time',
       description: 'Instant anomaly detection',
-      color: 'text-yellow-500'
+      color: 'text-amber-500',
+      gradient: 'from-amber-500/20 to-amber-600/10',
+      shadowColor: 'rgba(245, 158, 11, 0.2)'
     },
     {
       icon: Shield,
       title: 'Secure',
       description: 'Enterprise-grade security',
-      color: 'text-green-500'
+      color: 'text-emerald-500',
+      gradient: 'from-emerald-500/20 to-emerald-600/10',
+      shadowColor: 'rgba(34, 197, 94, 0.2)'
     },
     {
       icon: TrendingUp,
       title: 'Analytics',
       description: 'Advanced performance insights',
-      color: 'text-purple-500'
+      color: 'text-purple-500',
+      gradient: 'from-purple-500/20 to-purple-600/10',
+      shadowColor: 'rgba(147, 51, 234, 0.2)'
     }
   ]
 
@@ -177,93 +180,113 @@ export function HeroSection() {
           </MotionP>
         </motion.div>
 
-        {/* CTA Buttons */}
-        <motion.div 
-          variants={staggerItem}
-          className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
-        >
-          <MagneticButton className="group px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-lg">
-            <motion.div className="flex items-center">
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Activity className="w-5 h-5 mr-2" />
-              </motion.div>
-              View Dashboard
-              <motion.div
-                whileHover={{ x: 5 }}
-                transition={{ duration: 0.2 }}
-              >
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </motion.div>
-            </motion.div>
-          </MagneticButton>
-          
-          <MagneticButton className="px-8 py-4 text-lg backdrop-blur-sm bg-background/50 hover:bg-background/80 border border-border rounded-lg font-medium">
-            <motion.div className="flex items-center">
-              <Package className="w-5 h-5 mr-2" />
-              Track Package
-            </motion.div>
-          </MagneticButton>
-        </motion.div>
-
         {/* Feature Cards with Enhanced Interactions */}
         <motion.div 
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto"
         >
           {features.map((feature, index) => (
-            <motion.div key={feature.title} variants={staggerItem}>
+            <motion.div 
+              key={feature.title} 
+              variants={staggerItem}
+              whileHover={{ y: -10 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
               <TiltCard
-                className="group p-6 rounded-xl backdrop-blur-sm bg-card/50 border border-border/50 hover:bg-card/80 transition-all duration-300 cursor-pointer"
-                maxTilt={8}
+                className="group relative h-full p-8 rounded-2xl backdrop-blur-md bg-card/60 border border-border/40 hover:bg-card/90 hover:border-border/60 transition-all duration-500 cursor-pointer overflow-hidden"
+                maxTilt={12}
               >
+                {/* Background Gradient Overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                
+                {/* Animated Border */}
+                <motion.div
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    background: `linear-gradient(45deg, ${feature.shadowColor}, transparent, ${feature.shadowColor})`,
+                    padding: '1px',
+                  }}
+                  animate={{
+                    rotate: [0, 360],
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: 'linear',
+                    delay: index * 2
+                  }}
+                />
+
                 <RippleEffect>
-                  <MouseFollower strength={0.05}>
-                    <motion.div 
-                      className={`w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-4 ${feature.color}`}
-                      whileHover={{ 
-                        scale: 1.2,
-                        rotate: 15,
-                        transition: { duration: 0.2 }
-                      }}
-                      animate={{
-                        boxShadow: [
-                          `0 0 0 0 ${feature.color.includes('blue') ? 'rgba(59, 130, 246, 0)' : 
-                                    feature.color.includes('yellow') ? 'rgba(245, 158, 11, 0)' : 
-                                    feature.color.includes('green') ? 'rgba(34, 197, 94, 0)' : 
-                                    'rgba(147, 51, 234, 0)'}`,
-                          `0 0 0 10px ${feature.color.includes('blue') ? 'rgba(59, 130, 246, 0.1)' : 
-                                       feature.color.includes('yellow') ? 'rgba(245, 158, 11, 0.1)' : 
-                                       feature.color.includes('green') ? 'rgba(34, 197, 94, 0.1)' : 
-                                       'rgba(147, 51, 234, 0.1)'}`,
-                          `0 0 0 0 ${feature.color.includes('blue') ? 'rgba(59, 130, 246, 0)' : 
-                                    feature.color.includes('yellow') ? 'rgba(245, 158, 11, 0)' : 
-                                    feature.color.includes('green') ? 'rgba(34, 197, 94, 0)' : 
-                                    'rgba(147, 51, 234, 0)'}`
-                        ]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                        delay: index * 0.5
-                      }}
-                    >
-                      <feature.icon className="w-6 h-6" />
-                    </motion.div>
-                    <motion.h3 
-                      className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors"
-                      whileHover={{ x: 5 }}
-                    >
-                      {feature.title}
-                    </motion.h3>
-                    <p className="text-muted-foreground text-sm">
-                      {feature.description}
-                    </p>
+                  <MouseFollower strength={0.08}>
+                    <div className="relative z-10 flex flex-col items-center text-center h-full">
+                      {/* Icon Container */}
+                      <motion.div 
+                        className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 ${feature.color} shadow-lg`}
+                        whileHover={{ 
+                          scale: 1.15,
+                          rotate: [0, -10, 10, 0],
+                          transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                        }}
+                        animate={{
+                          boxShadow: [
+                            `0 0 0 0 ${feature.shadowColor}`,
+                            `0 0 0 8px ${feature.shadowColor.replace('0.2', '0.1')}`,
+                            `0 0 0 0 ${feature.shadowColor}`
+                          ]
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                          delay: index * 0.8
+                        }}
+                      >
+                        <feature.icon className="w-8 h-8" />
+                        
+                        {/* Floating particles */}
+                        <motion.div
+                          className="absolute -top-1 -right-1 w-2 h-2 bg-current rounded-full"
+                          animate={{
+                            y: [-4, -12, -4],
+                            opacity: [0, 1, 0],
+                            scale: [0.5, 1, 0.5]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            delay: index * 0.3
+                          }}
+                        />
+                      </motion.div>
+
+                      {/* Content */}
+                      <div className="space-y-3 flex-1 flex flex-col justify-center">
+                        <motion.h3 
+                          className="font-bold text-xl mb-2 group-hover:text-primary transition-colors duration-300"
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {feature.title}
+                        </motion.h3>
+                        
+                        <motion.p 
+                          className="text-muted-foreground text-sm leading-relaxed"
+                          initial={{ opacity: 0.8 }}
+                          whileHover={{ opacity: 1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {feature.description}
+                        </motion.p>
+                      </div>
+
+                      {/* Bottom accent line */}
+                      <motion.div
+                        className={`w-0 h-0.5 bg-gradient-to-r ${feature.gradient} group-hover:w-full transition-all duration-500 mt-4`}
+                      />
+                    </div>
                   </MouseFollower>
                 </RippleEffect>
               </TiltCard>
