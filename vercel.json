@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "clearpath-ai",
   "builds": [
     {
       "src": "frontend/package.json",
@@ -13,11 +12,6 @@
       "dest": "frontend/$1"
     }
   ],
-  "functions": {
-    "frontend/app/**": {
-      "includeFiles": "frontend/**"
-    }
-  },
   "env": {
     "NODE_ENV": "production"
   }
