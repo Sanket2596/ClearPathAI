@@ -1,29 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { GradientText } from '@/components/ui/gradient-text'
 import {
   LayoutDashboard,
   Package,
   AlertTriangle,
   Activity,
-  Settings,
-  Users,
   BarChart3,
+  Bot,
+  Users,
+  Settings,
+  Bell,
   Menu,
   X,
-  Bot,
-  Bell
+  Map,
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Packages', href: '/packages', icon: Package },
+  { name: 'Map', href: '/map', icon: Map },
   { name: 'Anomalies', href: '/anomalies', icon: AlertTriangle },
   { name: 'AI Agents', href: '/agents', icon: Bot },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
@@ -33,25 +36,50 @@ const navigation = [
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
 
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <nav className="bg-background border-b border-border">
+    <nav 
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        scrolled 
+          ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-black/5" 
+          : "bg-background/95 backdrop-blur-sm border-b border-border/30"
+      )}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo and primary navigation */}
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-primary-foreground" />
+              <Link href="/" className="flex items-center space-x-3 group">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                  <Activity className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-xl text-foreground">ClearPath AI</span>
+                <div>
+                  <GradientText 
+                    from="from-blue-600" 
+                    to="to-purple-600"
+                    className="font-bold text-xl"
+                  >
+                    ClearPath AI
+                  </GradientText>
+                </div>
               </Link>
             </div>
             
             {/* Desktop navigation */}
-            <div className="hidden md:ml-6 md:flex md:space-x-8">
+            <div className="hidden md:ml-8 md:flex md:space-x-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -59,22 +87,33 @@ export function Navigation() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors',
+                      'relative inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group',
                       isActive
-                        ? 'border-primary text-foreground'
-                        : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                        ? 'text-primary bg-primary/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     )}
                   >
-                    <item.icon className="w-4 h-4 mr-2" />
-                    {item.name}
+                    <item.icon className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                    <span className="relative">
+                      {item.name}
+                      {isActive && (
+                        <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
+                      )}
+                    </span>
+                    
                     {item.name === 'Anomalies' && (
-                      <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 text-xs">
+                      <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 text-xs shadow-sm">
                         23
                       </Badge>
                     )}
                     {item.name === 'AI Agents' && (
-                      <Badge variant="success" className="ml-2 px-1.5 py-0.5 text-xs">
+                      <Badge variant="success" className="ml-2 px-1.5 py-0.5 text-xs shadow-sm">
                         4
+                      </Badge>
+                    )}
+                    {item.name === 'Map' && (
+                      <Badge variant="info" className="ml-2 px-1.5 py-0.5 text-xs shadow-sm">
+                        Live
                       </Badge>
                     )}
                   </Link>
@@ -84,13 +123,13 @@ export function Navigation() {
           </div>
 
           {/* Right side items */}
-          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
+          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-3">
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative hover:bg-muted/50 rounded-lg">
               <Bell className="w-5 h-5" />
               <Badge 
                 variant="destructive" 
-                className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs"
+                className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs shadow-lg"
               >
                 3
               </Badge>
@@ -100,12 +139,14 @@ export function Navigation() {
             <ThemeToggle />
 
             {/* User menu */}
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                <Users className="w-4 h-4" />
+            <div className="flex items-center space-x-3 pl-2 pr-1 py-1 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group">
+              <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
+                <Users className="w-4 h-4 text-white" />
               </div>
               <div className="hidden lg:block">
-                <div className="text-sm font-medium">Operations Team</div>
+                <div className="text-sm font-medium group-hover:text-primary transition-colors">
+                  Operations Team
+                </div>
                 <div className="text-xs text-muted-foreground">Admin</div>
               </div>
             </div>
@@ -117,6 +158,7 @@ export function Navigation() {
               variant="ghost"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="rounded-lg hover:bg-muted/50"
             >
               {isMobileMenuOpen ? (
                 <X className="w-5 h-5" />
@@ -131,7 +173,7 @@ export function Navigation() {
       {/* Mobile menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border bg-background">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border bg-background/95 backdrop-blur-xl">
             {navigation.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -139,10 +181,10 @@ export function Navigation() {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    'flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                      ? 'bg-gradient-to-r from-blue-600/10 to-purple-600/10 text-primary border border-primary/20'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -158,6 +200,11 @@ export function Navigation() {
                       4
                     </Badge>
                   )}
+                  {item.name === 'Map' && (
+                    <Badge variant="info" className="ml-auto px-1.5 py-0.5 text-xs">
+                      Live
+                    </Badge>
+                  )}
                 </Link>
               )
             })}
@@ -165,8 +212,8 @@ export function Navigation() {
           
           <div className="pt-4 pb-3 border-t border-border">
             <div className="flex items-center px-5 space-x-3">
-              <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
-                <Users className="w-5 h-5" />
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
+                <Users className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="text-sm font-medium">Operations Team</div>

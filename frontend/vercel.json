@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "clearpath-ai",
   "builds": [
     {
       "src": "package.json",
@@ -12,21 +11,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
-  },
-  "functions": {
-    "app/**/*.tsx": {
-      "maxDuration": 10
-    },
-    "app/**/*.ts": {
-      "maxDuration": 10
-    }
-  }
+  ]
 }

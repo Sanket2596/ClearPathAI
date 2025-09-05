@@ -29,7 +29,7 @@ export default function RootLayout({
             <InteractiveBackground />
             <div className="min-h-screen bg-background relative z-10">
               <Navigation />
-              <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+              <main className="flex-1 space-y-4 p-4 md:p-8 pt-24">
                 {children}
               </main>
             </div>

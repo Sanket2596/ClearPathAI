@@ -2,9 +2,18 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
+interface WebSocketMessage {
+  type: string
+  data: {
+    packageId: string
+    status: string
+    timestamp: string
+  }
+}
+
 interface WebSocketContextType {
   isConnected: boolean
-  lastMessage: any
+  lastMessage: WebSocketMessage | null
   sendMessage: (message: any) => void
 }
 
@@ -16,7 +25,7 @@ const WebSocketContext = createContext<WebSocketContextType>({
 
 export function WebSocketProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(true) // Mock as connected for demo
-  const [lastMessage, setLastMessage] = useState(null)
+  const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null)
 
   // Mock WebSocket connection for demo
   useEffect(() => {
@@ -25,7 +34,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       const mockMessage = {
         type: 'package_update',
         data: {
-          packageId: `PKG${Math.random().toString(36).substr(2, 9)}`,
+          packageId: `PKG${Math.random().toString(36).substring(2, 11)}`,
           status: Math.random() > 0.7 ? 'anomaly_detected' : 'in_transit',
           timestamp: new Date().toISOString(),
         },
