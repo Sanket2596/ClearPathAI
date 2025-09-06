@@ -43,7 +43,8 @@ import {
   Target,
   TrendingUp,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Package
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 

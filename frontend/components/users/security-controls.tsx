@@ -46,12 +46,12 @@ import {
   Settings,
   UserX,
   LogOut,
+  Plus,
   Mail,
   Phone,
   MapPin,
   Monitor,
-  Wifi,
-  Plus
+  Wifi
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 

@@ -47,7 +47,8 @@ import {
   FileText,
   Award,
   Settings,
-  AlertCircle
+  AlertCircle,
+  Plus
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 
