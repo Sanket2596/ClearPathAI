@@ -250,7 +250,7 @@ export default function PackagesPage() {
   }
 
   return (
-    <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 space-y-8 pb-8">
+    <div className="space-y-8">
       {/* Header */}
       <MotionDiv
         initial="hidden"

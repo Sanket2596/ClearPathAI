@@ -392,20 +392,22 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 lg:left-[280px] bg-black/50 backdrop-blur-sm z-50"
             onClick={onClose}
           />
           
           {/* Search Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl z-50 px-4"
-          >
-            <Card className="shadow-2xl border-2 border-border/50 backdrop-blur-xl bg-background/95">
-              <CardContent className="p-0">
+          <div className="fixed inset-4 lg:left-[300px] z-50 flex items-start justify-center pt-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Card className="shadow-2xl border-2 border-border/50 backdrop-blur-xl bg-background/95">
+                <CardContent className="p-0">
                 {/* Search Input */}
                 <div className="flex items-center gap-3 p-4 border-b border-border">
                   <Search className="w-5 h-5 text-muted-foreground" />
@@ -414,6 +416,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                     placeholder="Search packages, anomalies, agents, users..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
                     className="border-0 shadow-none text-lg placeholder:text-muted-foreground focus-visible:ring-0"
                   />
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -590,9 +593,10 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                     <div>{results.length} results</div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

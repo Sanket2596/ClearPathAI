@@ -85,7 +85,7 @@ export function Navigation() {
             </div>
             
             {/* Desktop navigation */}
-            <div className="hidden md:ml-0 lg:ml-0 md:flex md:space-x-1">
+            <div className="hidden md:ml-0 lg:ml-0 md:flex md:items-center md:space-x-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -126,11 +126,21 @@ export function Navigation() {
                 )
               })}
             </div>
+            
+            {/* Theme toggle right after navigation - separate container */}
+            <div className="hidden md:flex md:items-center ml-2 bg-red-200 p-1 rounded">
+              <ThemeToggle />
+            </div>
           </div>
 
 
           {/* Right side items */}
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-3">
+            {/* Theme toggle - testing in right side */}
+            <div className="bg-red-200 p-1 rounded">
+              <ThemeToggle />
+            </div>
+            
             {/* Notifications */}
             <Button variant="ghost" size="icon" className="relative hover:bg-muted/50 rounded-lg">
               <Bell className="w-5 h-5" />
@@ -142,8 +152,6 @@ export function Navigation() {
               </Badge>
             </Button>
 
-            {/* Theme toggle */}
-            <ThemeToggle />
 
             {/* User menu */}
             <div className="flex items-center space-x-3 pl-2 pr-1 py-1 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group">

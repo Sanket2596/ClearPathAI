@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
-import { Navigation } from '@/components/layout/navigation'
+import { SidebarNavigation } from '@/components/layout/sidebar-navigation'
 import { CustomCursor } from '@/components/ui/custom-cursor'
 import { InteractiveBackground } from '@/components/ui/interactive-background'
 
@@ -27,10 +27,12 @@ export default function RootLayout({
         <Providers>
           <CustomCursor>
             <InteractiveBackground />
-            <div className="min-h-screen bg-background relative z-10">
-              <Navigation />
-              <main className="flex-1 space-y-4 p-4 md:p-8 pt-24">
-                {children}
+            <div className="h-screen bg-background relative z-10 flex">
+              <SidebarNavigation />
+              <main className="flex-1 overflow-auto">
+                <div className="p-4 md:p-8 lg:p-12 space-y-8">
+                  {children}
+                </div>
               </main>
             </div>
           </CustomCursor>

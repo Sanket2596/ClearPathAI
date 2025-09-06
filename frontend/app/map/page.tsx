@@ -70,7 +70,7 @@ export default function MapPage() {
   }
 
   return (
-    <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 space-y-6 pb-8">
+    <div className="space-y-6">
       {/* Header */}
       <motion.div 
         className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"

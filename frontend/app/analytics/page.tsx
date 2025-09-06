@@ -163,7 +163,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen pt-20 space-y-8 pb-8">
+    <div className="space-y-8">
       <div className="w-full space-y-8">
       {/* Header - Scrollable with content */}
       <div className="pb-6 mb-6 px-4 sm:px-6 lg:px-8">
