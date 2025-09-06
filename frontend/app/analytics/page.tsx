@@ -85,7 +85,13 @@ const trendsData = [
   { date: '2024-01-11', detected: 33, resolved: 31, cost: 4100 },
   { date: '2024-01-12', detected: 58, resolved: 52, cost: 11200 },
   { date: '2024-01-13', detected: 44, resolved: 42, cost: 6300 },
-  { date: '2024-01-14', detected: 39, resolved: 37, cost: 5100 }
+  { date: '2024-01-14', detected: 39, resolved: 37, cost: 5100 },
+  { date: '2024-01-15', detected: 63, resolved: 55, cost: 14100 },
+  { date: '2024-01-16', detected: 47, resolved: 43, cost: 7800 },
+  { date: '2024-01-17', detected: 54, resolved: 49, cost: 9500 },
+  { date: '2024-01-18', detected: 41, resolved: 38, cost: 6200 },
+  { date: '2024-01-19', detected: 59, resolved: 54, cost: 12300 },
+  { date: '2024-01-20', detected: 46, resolved: 42, cost: 7600 }
 ]
 
 const hubPerformanceData = [
@@ -94,7 +100,9 @@ const hubPerformanceData = [
   { hub: 'Denver Hub', anomalies: 98, resolved: 89, efficiency: 90.8, region: 'West' },
   { hub: 'Atlanta Hub', anomalies: 156, resolved: 128, efficiency: 82.1, region: 'Southeast' },
   { hub: 'Phoenix Hub', anomalies: 112, resolved: 101, efficiency: 90.2, region: 'Southwest' },
-  { hub: 'Seattle Hub', anomalies: 89, resolved: 83, efficiency: 93.3, region: 'Northwest' }
+  { hub: 'Seattle Hub', anomalies: 89, resolved: 83, efficiency: 93.3, region: 'Northwest' },
+  { hub: 'Miami Hub', anomalies: 134, resolved: 118, efficiency: 88.1, region: 'Southeast' },
+  { hub: 'Los Angeles Hub', anomalies: 201, resolved: 178, efficiency: 88.6, region: 'West' }
 ]
 
 const rootCauseData = [
@@ -155,9 +163,11 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className="min-h-screen pt-20 space-y-8 pb-8">
+      <div className="w-full space-y-8">
+      {/* Header - Scrollable with content */}
+      <div className="pb-6 mb-6 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             <GradientText from="from-purple-600" to="to-pink-600">
@@ -171,8 +181,8 @@ export default function AnalyticsPage() {
         
         <div className="flex items-center gap-3">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Select range" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7d">Last 7 days</SelectItem>
@@ -196,15 +206,17 @@ export default function AnalyticsPage() {
             Export
           </Button>
         </div>
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <MotionDiv
-        variants={staggerContainer}
-        initial="initial"
-        animate="animate"
-        className="grid grid-cols-2 md:grid-cols-4 gap-6"
-      >
+      <div className="px-4 sm:px-6 lg:px-8">
+        <MotionDiv
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-2 md:grid-cols-4 gap-6"
+        >
         <motion.div variants={staggerItem}>
           <TiltCard className="p-6 text-center">
             <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-green-500/20 to-green-600/10 rounded-xl">
@@ -260,10 +272,12 @@ export default function AnalyticsPage() {
             </div>
           </TiltCard>
         </motion.div>
-      </MotionDiv>
+        </MotionDiv>
+      </div>
 
       {/* Main Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="px-4 sm:px-6 lg:px-8 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Anomalies Trend Chart */}
         <Card>
           <CardHeader>
@@ -474,13 +488,17 @@ export default function AnalyticsPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
 
       {/* Regional Heatmap */}
-      <RegionalHeatmap />
+      <div className="mt-8">
+        <RegionalHeatmap />
+      </div>
 
       {/* Customer Experience Metrics */}
-      <Card>
+      <div className="px-4 sm:px-6 lg:px-8 mt-8">
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />
@@ -526,7 +544,9 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
+      </div>
     </div>
   )
 }

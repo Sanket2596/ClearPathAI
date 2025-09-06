@@ -250,13 +250,13 @@ export default function PackagesPage() {
   }
 
   return (
-    <div className="space-y-8 relative pb-8">
+    <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 space-y-8 pb-8">
       {/* Header */}
       <MotionDiv
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
-        className="flex items-center justify-between pt-4"
+        className="flex items-center justify-between"
       >
         <motion.div variants={staggerItem}>
           <h1 className="text-4xl font-bold tracking-tight">
@@ -432,7 +432,7 @@ export default function PackagesPage() {
                     <TiltCard maxTilt={5}>
                       <RippleEffect>
                         <MouseFollower strength={0.03}>
-                          <Card className="relative overflow-hidden group cursor-pointer h-full flex flex-col justify-between">
+                          <Card className="relative overflow-hidden group cursor-pointer h-full flex flex-col min-h-[400px]">
                             {/* Priority Indicator */}
                             <div className={`absolute top-0 right-0 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] ${
                               pkg.priority === 'critical' ? 'border-t-red-500' :
@@ -440,7 +440,7 @@ export default function PackagesPage() {
                               pkg.priority === 'medium' ? 'border-t-blue-500' : 'border-t-gray-400'
                             }`} />
                             
-                            <CardContent className="p-4 flex-1">
+                            <CardContent className="p-4 flex-1 flex flex-col justify-between">
                               <div className="space-y-3">
                                 {/* Header */}
                                 <div className="flex items-start justify-between">
@@ -495,7 +495,7 @@ export default function PackagesPage() {
                             </CardContent>
 
                             {/* Footer */}
-                            <div className="border-t border-border p-4">
+                            <div className="border-t border-border p-4 mt-auto">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                   <motion.div

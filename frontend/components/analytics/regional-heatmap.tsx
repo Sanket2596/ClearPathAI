@@ -56,6 +56,11 @@ const getRiskBadgeVariant = (level: string) => {
 export function RegionalHeatmap() {
   const [selectedRegion, setSelectedRegion] = useState<RegionData | null>(null)
   const [viewMode, setViewMode] = useState<'anomalies' | 'efficiency' | 'risk'>('anomalies')
+  const [isMounted, setIsMounted] = useState(false)
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const getIntensity = (region: RegionData) => {
     switch (viewMode) {
@@ -70,6 +75,24 @@ export function RegionalHeatmap() {
       default:
         return 50
     }
+  }
+
+  if (!isMounted) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-primary" />
+            Regional Performance Heatmap
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-96">
+            <div className="text-muted-foreground">Loading heatmap...</div>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
