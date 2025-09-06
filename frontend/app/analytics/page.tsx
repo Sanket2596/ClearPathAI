@@ -192,14 +192,20 @@ export default function AnalyticsPage() {
             </SelectContent>
           </Select>
           
-          <MagneticButton
+          <Button 
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="flex items-center gap-2"
+            size="sm"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <motion.div
+              animate={isRefreshing ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: "linear" }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+            </motion.div>
             Refresh
-          </MagneticButton>
+          </Button>
           
           <Button variant="outline" className="flex items-center gap-2">
             <Download className="w-4 h-4" />

@@ -70,10 +70,10 @@ export default function MapPage() {
   }
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 space-y-6 pb-8">
       {/* Header */}
       <motion.div 
-        className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pt-4"
+        className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -107,7 +107,12 @@ export default function MapPage() {
             size="sm"
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <motion.div
+              animate={isRefreshing ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: "linear" }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+            </motion.div>
             Refresh
           </Button>
         </div>

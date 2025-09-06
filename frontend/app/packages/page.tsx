@@ -311,6 +311,11 @@ export default function PackagesPage() {
             </motion.div>
             Refresh
           </Button>
+          
+          <Button variant="outline" className="flex items-center gap-2">
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
         </motion.div>
       </MotionDiv>
 

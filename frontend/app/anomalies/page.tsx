@@ -16,8 +16,7 @@ import {
   staggerContainer,
   staggerItem,
   TiltCard,
-  RippleEffect,
-  MagneticButton
+  RippleEffect
 } from '@/components/ui/motion-components'
 import {
   AlertTriangle,
@@ -264,14 +263,20 @@ export default function AnomaliesPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <MagneticButton
+          <Button 
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="flex items-center gap-2"
+            size="sm"
+            className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <motion.div
+              animate={isRefreshing ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: "linear" }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+            </motion.div>
             Refresh
-          </MagneticButton>
+          </Button>
           
           <Button variant="outline" className="flex items-center gap-2">
             <Download className="w-4 h-4" />
@@ -533,9 +538,9 @@ export default function AnomaliesPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <MagneticButton className="px-3 py-1 text-xs">
+                            <Button variant="secondary" size="sm" className="px-3 py-1 text-xs">
                               {anomaly.suggestedAction}
-                            </MagneticButton>
+                            </Button>
                           </div>
                         </td>
                       </motion.tr>
