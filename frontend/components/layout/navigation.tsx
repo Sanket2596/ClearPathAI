@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GradientText } from '@/components/ui/gradient-text'
+import { GlobalSearchTrigger } from '@/components/ui/global-search'
 import {
   LayoutDashboard,
   Package,
@@ -78,8 +79,13 @@ export function Navigation() {
               </Link>
             </div>
             
+            {/* Global Search */}
+            <div className="hidden lg:flex ml-8 mr-6">
+              <GlobalSearchTrigger />
+            </div>
+            
             {/* Desktop navigation */}
-            <div className="hidden md:ml-8 md:flex md:space-x-1">
+            <div className="hidden md:ml-0 lg:ml-0 md:flex md:space-x-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -122,6 +128,7 @@ export function Navigation() {
             </div>
           </div>
 
+
           {/* Right side items */}
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-3">
             {/* Notifications */}
@@ -152,8 +159,11 @@ export function Navigation() {
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          {/* Mobile search and menu buttons */}
+          <div className="md:hidden flex items-center space-x-2">
+            <div className="lg:hidden">
+              <GlobalSearchTrigger />
+            </div>
             <Button
               variant="ghost"
               size="icon"
