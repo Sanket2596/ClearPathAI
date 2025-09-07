@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useUser, useClerk, SignInButton } from '@clerk/nextjs'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -46,6 +47,8 @@ export function SidebarNavigation() {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const { user, isSignedIn } = useUser()
+  const { signOut } = useClerk()
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -297,41 +300,69 @@ export function SidebarNavigation() {
             </Button>
 
             {/* User profile */}
-            <div className={cn(
-              "flex items-center p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group border border-border/50",
-              isCollapsed ? "justify-center" : "space-x-3"
-            )}>
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
-                <Users className="w-4 h-4 text-white" />
-              </div>
-              
-              <AnimatePresence>
-                {!isCollapsed && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex-1 min-w-0"
-                  >
-                    <div className="text-sm font-medium group-hover:text-primary transition-colors truncate">
-                      Operations Team
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate">Admin</div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            {isSignedIn ? (
+              <div className={cn(
+                "flex items-center p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group border border-border/50",
+                isCollapsed ? "justify-center" : "space-x-3"
+              )}>
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md overflow-hidden">
+                  {user?.imageUrl ? (
+                    <img
+                      src={user.imageUrl}
+                      alt={user.fullName || 'User'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Users className="w-4 h-4 text-white" />
+                  )}
+                </div>
+                
+                <AnimatePresence>
+                  {!isCollapsed && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex-1 min-w-0"
+                    >
+                      <div className="text-sm font-medium group-hover:text-primary transition-colors truncate">
+                        {user?.fullName || user?.firstName || 'User'}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {user?.primaryEmailAddress?.emailAddress}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-              {!isCollapsed && (
+                {!isCollapsed && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => signOut()}
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <LogOut className="w-3 h-3" />
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <SignInButton mode="modal">
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  variant="default"
+                  className={cn(
+                    "w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0",
+                    isCollapsed ? "p-3 justify-center" : "justify-start px-3 py-2.5"
+                  )}
                 >
-                  <LogOut className="w-3 h-3" />
+                  <Users className={cn(
+                    isCollapsed ? "w-5 h-5" : "w-4 h-4 mr-3"
+                  )} />
+                  {!isCollapsed && <span>Sign In</span>}
                 </Button>
-              )}
-            </div>
+              </SignInButton>
+            )}
           </div>
         </div>
       </motion.aside>

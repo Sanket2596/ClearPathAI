@@ -1,6 +1,7 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/theme-provider'
 import { WebSocketProvider } from '@/hooks/use-websocket'
 import { useState } from 'react'
@@ -30,17 +31,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <WebSocketProvider>
-          {children}
-        </WebSocketProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: undefined,
+        variables: {
+          colorPrimary: '#3b82f6',
+          colorBackground: '#ffffff',
+          colorText: '#1f2937',
+        },
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <WebSocketProvider>
+            {children}
+          </WebSocketProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   )
 }
