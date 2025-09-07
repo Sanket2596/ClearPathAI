@@ -1,25 +1,25 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { GradientText } from '@/components/ui/gradient-text'
-import { 
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { GradientText } from "@/components/ui/gradient-text";
+import {
   MotionDiv,
   staggerContainer,
   staggerItem,
   fadeInUp,
-  scaleIn
-} from '@/components/ui/motion-components'
-import { 
-  ArrowRight, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Github, 
-  Twitter, 
-  Linkedin, 
+  scaleIn,
+} from "@/components/ui/motion-components";
+import {
+  ArrowRight,
+  Mail,
+  Phone,
+  MapPin,
+  Github,
+  Twitter,
+  Linkedin,
   Activity,
   Heart,
   ExternalLink,
@@ -28,47 +28,59 @@ import {
   BookOpen,
   MessageCircle,
   Sparkles,
-  Rocket
-} from 'lucide-react'
+  Rocket,
+} from "lucide-react";
+import { AIAssistantSection } from "@/components/ai-assistant-section";
+import { ConnectedToolsSection } from "@/components/connected-tools-section";
+import { SimpleFAQ } from "@/components/simple-faq";
 
 const footerLinks = {
   company: [
-    { name: 'About Us', href: '#', icon: Building },
-    { name: 'Our Story', href: '#', icon: BookOpen },
-    { name: 'Careers', href: '#', icon: Users },
-    { name: 'Contact Us', href: '#', icon: MessageCircle },
+    { name: "About Us", href: "#", icon: Building },
+    { name: "Our Story", href: "#", icon: BookOpen },
+    { name: "Careers", href: "#", icon: Users },
+    { name: "Contact Us", href: "#", icon: MessageCircle },
   ],
   product: [
-    { name: 'Dashboard', href: '#' },
-    { name: 'AI Agents', href: '#' },
-    { name: 'Analytics', href: '#' },
-    { name: 'Integrations', href: '#' },
+    { name: "Dashboard", href: "#" },
+    { name: "AI Agents", href: "#" },
+    { name: "Analytics", href: "#" },
+    { name: "Integrations", href: "#" },
   ],
   resources: [
-    { name: 'Documentation', href: '#' },
-    { name: 'API Reference', href: '#' },
-    { name: 'Support Center', href: '#' },
-    { name: 'Status Page', href: '#' },
+    { name: "Documentation", href: "#" },
+    { name: "API Reference", href: "#" },
+    { name: "Support Center", href: "#" },
+    { name: "Status Page", href: "#" },
   ],
   legal: [
-    { name: 'Privacy Policy', href: '#' },
-    { name: 'Terms of Service', href: '#' },
-    { name: 'Cookie Policy', href: '#' },
-    { name: 'Security', href: '#' },
-  ]
-}
+    { name: "Privacy Policy", href: "#" },
+    { name: "Terms of Service", href: "#" },
+    { name: "Cookie Policy", href: "#" },
+    { name: "Security", href: "#" },
+  ],
+};
 
 const socialLinks = [
-  { name: 'GitHub', icon: Github, href: '#', color: 'hover:text-gray-900 dark:hover:text-white' },
-  { name: 'Twitter', icon: Twitter, href: '#', color: 'hover:text-blue-400' },
-  { name: 'LinkedIn', icon: Linkedin, href: '#', color: 'hover:text-blue-600' },
-]
+  {
+    name: "GitHub",
+    icon: Github,
+    href: "#",
+    color: "hover:text-gray-900 dark:hover:text-white",
+  },
+  { name: "Twitter", icon: Twitter, href: "#", color: "hover:text-blue-400" },
+  { name: "LinkedIn", icon: Linkedin, href: "#", color: "hover:text-blue-600" },
+];
 
 const contactInfo = [
-  { icon: Mail, text: 'hello@clearpathai.com', href: 'mailto:hello@clearpathai.com' },
-  { icon: Phone, text: '+1 (555) 123-4567', href: 'tel:+15551234567' },
-  { icon: MapPin, text: 'San Francisco, CA', href: '#' },
-]
+  {
+    icon: Mail,
+    text: "hello@clearpathai.com",
+    href: "mailto:hello@clearpathai.com",
+  },
+  { icon: Phone, text: "+1 (555) 123-4567", href: "tel:+15551234567" },
+  { icon: MapPin, text: "San Francisco, CA", href: "#" },
+];
 
 export function FooterSection() {
   const containerVariants = {
@@ -80,7 +92,7 @@ export function FooterSection() {
         delayChildren: 0.2,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -92,7 +104,7 @@ export function FooterSection() {
         ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
-  }
+  };
 
   const linkVariants = {
     hidden: { opacity: 0, x: -20 },
@@ -104,12 +116,12 @@ export function FooterSection() {
         ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
-  }
+  };
 
   return (
     <footer className="relative bg-gradient-to-br from-background via-background to-primary/5 border-t border-border/50 overflow-hidden">
       {/* Enhanced Floating Background Elements - Same as Hero */}
-      <motion.div 
+      <motion.div
         className="absolute top-20 left-20 w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"
         animate={{
           y: [-20, 20, -20],
@@ -119,10 +131,10 @@ export function FooterSection() {
         transition={{
           duration: 6,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       />
-      <motion.div 
+      <motion.div
         className="absolute bottom-20 right-20 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-xl"
         animate={{
           y: [20, -20, 20],
@@ -133,10 +145,10 @@ export function FooterSection() {
           duration: 8,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 1
+          delay: 1,
         }}
       />
-      <motion.div 
+      <motion.div
         className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-full blur-xl"
         animate={{
           y: [-15, 15, -15],
@@ -146,10 +158,10 @@ export function FooterSection() {
           duration: 4,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 2
+          delay: 2,
         }}
       />
-      <motion.div 
+      <motion.div
         className="absolute top-40 right-40 w-24 h-24 bg-gradient-to-br from-yellow-500/15 to-orange-500/15 rounded-full blur-xl"
         animate={{
           y: [10, -25, 10],
@@ -160,12 +172,18 @@ export function FooterSection() {
           duration: 7,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 0.5
+          delay: 0.5,
         }}
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section with Hero-style Animation */}
+        {/* Connected Tools Section */}
+        <ConnectedToolsSection />
+
+        {/* AI Assistant Section */}
+        <AIAssistantSection />
+
+        {/* Join the Future of Logistics Section */}
         <MotionDiv
           className="text-center py-16 border-b border-border/50"
           initial="hidden"
@@ -192,26 +210,30 @@ export function FooterSection() {
           </motion.div>
 
           <motion.div variants={staggerItem}>
-            <motion.h2 
+            <motion.h2
               className="text-4xl md:text-5xl font-bold mb-6 leading-tight"
               initial={{ scale: 0.8, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
               viewport={{ once: true }}
             >
-              <GradientText 
-                from="from-blue-600" 
+              <GradientText
+                from="from-blue-600"
                 to="to-purple-600"
                 animated
                 className="block"
               >
                 Join the Future
               </GradientText>
-              <motion.span 
+              <motion.span
                 className="block text-3xl md:text-4xl mt-2 text-foreground/80"
                 initial={{ y: 30, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{
+                  delay: 0.3,
+                  duration: 0.8,
+                  ease: [0.25, 0.46, 0.45, 0.94],
+                }}
                 viewport={{ once: true }}
               >
                 of Logistics
@@ -220,31 +242,35 @@ export function FooterSection() {
           </motion.div>
 
           <motion.div variants={staggerItem}>
-            <motion.p 
+            <motion.p
               className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8"
               initial={{ y: 20, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.6 }}
               viewport={{ once: true }}
             >
-              Connect with thousands of companies using ClearPath AI to eliminate lost packages 
-              and transform their operations with autonomous intelligence.
+              Connect with thousands of companies using ClearPath AI to
+              eliminate lost packages and transform their operations with
+              autonomous intelligence.
             </motion.p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             variants={staggerItem}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <motion.div 
-              whileHover={{ 
+            <motion.div
+              whileHover={{
                 scale: 1.05,
                 y: -2,
-                transition: { duration: 0.2 }
-              }} 
+                transition: { duration: 0.2 },
+              }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+              >
                 <motion.div className="flex items-center">
                   <motion.div
                     whileHover={{ rotate: 360 }}
@@ -262,21 +288,28 @@ export function FooterSection() {
                 </motion.div>
               </Button>
             </motion.div>
-            <motion.div 
-              whileHover={{ 
+            <motion.div
+              whileHover={{
                 scale: 1.05,
                 y: -2,
-                transition: { duration: 0.2 }
-              }} 
+                transition: { duration: 0.2 },
+              }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button variant="outline" size="lg" className="backdrop-blur-sm bg-background/50 hover:bg-background/80 border border-border shadow-lg">
+              <Button
+                variant="outline"
+                size="lg"
+                className="backdrop-blur-sm bg-background/50 hover:bg-background/80 border border-border shadow-lg"
+              >
                 Schedule Demo
                 <ExternalLink className="w-4 h-4 ml-2" />
               </Button>
             </motion.div>
           </motion.div>
         </MotionDiv>
+
+        {/* FAQ Section */}
+        <SimpleFAQ />
 
         {/* Main Footer Content */}
         <MotionDiv
@@ -290,29 +323,29 @@ export function FooterSection() {
             {/* Company Info - Left Column */}
             <motion.div variants={staggerItem} className="lg:col-span-4">
               <motion.div
-                whileHover={{ 
+                whileHover={{
                   scale: 1.05,
                   y: -2,
-                  transition: { duration: 0.3, ease: 'easeOut' }
+                  transition: { duration: 0.3, ease: "easeOut" },
                 }}
                 className="flex items-center space-x-3 mb-6 group cursor-pointer"
               >
-                <motion.div 
+                <motion.div
                   className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
-                  whileHover={{ 
+                  whileHover={{
                     rotate: 15,
                     scale: 1.1,
-                    transition: { duration: 0.2 }
+                    transition: { duration: 0.2 },
                   }}
                 >
                   <Activity className="w-6 h-6 text-white" />
                 </motion.div>
-                <motion.span 
+                <motion.span
                   className="text-2xl font-bold"
                   whileHover={{ x: 5 }}
                 >
-                  <GradientText 
-                    from="from-blue-600" 
+                  <GradientText
+                    from="from-blue-600"
                     to="to-purple-600"
                     animated
                   >
@@ -320,14 +353,14 @@ export function FooterSection() {
                   </GradientText>
                 </motion.span>
               </motion.div>
-              
-              <motion.p 
+
+              <motion.p
                 variants={itemVariants}
                 className="text-muted-foreground mb-6 leading-relaxed"
               >
-                Revolutionizing logistics with Agentic AI. We help businesses detect, investigate, 
-                and recover lost packages in real-time, transforming reactive operations into 
-                proactive problem-solving.
+                Revolutionizing logistics with Agentic AI. We help businesses
+                detect, investigate, and recover lost packages in real-time,
+                transforming reactive operations into proactive problem-solving.
               </motion.p>
 
               {/* Contact Info */}
@@ -346,7 +379,9 @@ export function FooterSection() {
                     >
                       <contact.icon className="w-5 h-5" />
                     </motion.div>
-                    <span className="group-hover:underline">{contact.text}</span>
+                    <span className="group-hover:underline">
+                      {contact.text}
+                    </span>
                   </motion.a>
                 ))}
               </motion.div>
@@ -357,7 +392,7 @@ export function FooterSection() {
                   <motion.a
                     key={social.name}
                     href={social.href}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.2,
                       rotate: 15,
                     }}
@@ -393,7 +428,9 @@ export function FooterSection() {
                         >
                           <link.icon className="w-4 h-4" />
                         </motion.div>
-                        <span className="group-hover:underline">{link.name}</span>
+                        <span className="group-hover:underline">
+                          {link.name}
+                        </span>
                       </motion.a>
                     </motion.li>
                   ))}
@@ -424,7 +461,9 @@ export function FooterSection() {
 
               {/* Resources Links */}
               <motion.div variants={itemVariants}>
-                <h3 className="font-semibold text-foreground mb-4">Resources</h3>
+                <h3 className="font-semibold text-foreground mb-4">
+                  Resources
+                </h3>
                 <ul className="space-y-3">
                   {footerLinks.resources.map((link, index) => (
                     <motion.li
@@ -469,54 +508,6 @@ export function FooterSection() {
           </div>
         </MotionDiv>
 
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          viewport={{ once: true }}
-          className="py-12 border-t border-border/50"
-        >
-          <Card className="p-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50 border-primary/20">
-            <div className="text-center">
-              <motion.h3 
-                className="text-2xl md:text-3xl font-bold mb-4"
-                whileHover={{ scale: 1.02 }}
-              >
-                Ready to transform your logistics?
-              </motion.h3>
-              <motion.p 
-                className="text-muted-foreground mb-6 max-w-2xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
-              >
-                Join thousands of companies using ClearPath AI to eliminate lost packages 
-                and improve customer satisfaction with autonomous AI agents.
-              </motion.p>
-              <motion.div 
-                className="flex flex-col sm:flex-row gap-4 justify-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-              >
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
-                    Start Free Trial
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button variant="outline" size="lg">
-                    Schedule Demo
-                    <ExternalLink className="w-4 h-4 ml-2" />
-                  </Button>
-                </motion.div>
-              </motion.div>
-            </div>
-          </Card>
-        </motion.div>
-
         {/* Bottom Bar */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -527,7 +518,7 @@ export function FooterSection() {
         >
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-4">
-              <motion.p 
+              <motion.p
                 className="text-muted-foreground text-sm"
                 whileHover={{ scale: 1.05 }}
               >
@@ -538,21 +529,21 @@ export function FooterSection() {
                 All systems operational
               </Badge>
             </div>
-            
-            <motion.div 
+
+            <motion.div
               className="flex items-center space-x-2 text-sm text-muted-foreground"
               whileHover={{ scale: 1.05 }}
             >
               <span>Made with</span>
               <motion.div
-                animate={{ 
+                animate={{
                   scale: [1, 1.2, 1],
-                  rotate: [0, 5, -5, 0]
+                  rotate: [0, 5, -5, 0],
                 }}
-                transition={{ 
-                  duration: 2, 
+                transition={{
+                  duration: 2,
                   repeat: Infinity,
-                  repeatDelay: 3
+                  repeatDelay: 3,
                 }}
               >
                 <Heart className="w-4 h-4 text-red-500 fill-current" />
@@ -563,5 +554,5 @@ export function FooterSection() {
         </motion.div>
       </div>
     </footer>
-  )
+  );
 }
