@@ -286,18 +286,21 @@ export function SidebarNavigation() {
             />
 
             {/* Help */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full",
-                isCollapsed ? "p-3 justify-center" : "justify-start px-3 py-2.5"
-              )}
-            >
-              <HelpCircle className={cn(
-                isCollapsed ? "w-5 h-5" : "w-4 h-4 mr-3"
-              )} />
-              {!isCollapsed && <span>Help & Support</span>}
-            </Button>
+            <Link href="/help">
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full",
+                  isCollapsed ? "p-3 justify-center" : "justify-start px-3 py-2.5",
+                  pathname === '/help' && "bg-primary/10 text-primary"
+                )}
+              >
+                <HelpCircle className={cn(
+                  isCollapsed ? "w-5 h-5" : "w-4 h-4 mr-3"
+                )} />
+                {!isCollapsed && <span>Help & Support</span>}
+              </Button>
+            </Link>
 
             {/* User profile */}
             {isSignedIn ? (
