@@ -38,7 +38,8 @@ import {
   Play,
   Pause,
   RotateCcw,
-  FileText
+  FileText,
+  BarChart3
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 
