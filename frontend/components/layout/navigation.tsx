@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GradientText } from '@/components/ui/gradient-text'
 import { GlobalSearchTrigger } from '@/components/ui/global-search'
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import {
   LayoutDashboard,
   Package,
@@ -32,6 +33,7 @@ const navigation = [
   { name: 'AI Agents', href: '/agents', icon: Bot },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Users', href: '/users', icon: Users },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
@@ -142,15 +144,7 @@ export function Navigation() {
             </div>
             
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative hover:bg-muted/50 rounded-lg">
-              <Bell className="w-5 h-5" />
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs shadow-lg"
-              >
-                3
-              </Badge>
-            </Button>
+            <NotificationDropdown />
 
 
             {/* User menu */}

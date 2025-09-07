@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GradientText } from '@/components/ui/gradient-text'
 import { GlobalSearchTrigger } from '@/components/ui/global-search'
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import {
   LayoutDashboard,
   Package,
@@ -37,6 +38,7 @@ const navigation = [
   { name: 'AI Agents', href: '/agents', icon: Bot },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Users', href: '/users', icon: Users },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
@@ -271,24 +273,14 @@ export function SidebarNavigation() {
             </div>
 
             {/* Notifications */}
-            <Button
-              variant="ghost"
+            <NotificationDropdown 
+              showLabel={true}
+              isCollapsed={isCollapsed}
               className={cn(
-                "w-full relative",
-                isCollapsed ? "p-3" : "justify-start px-3 py-2.5"
-              )}
-            >
-              <Bell className={cn(
-                isCollapsed ? "w-5 h-5" : "w-4 h-4 mr-3"
-              )} />
-              {!isCollapsed && <span>Notifications</span>}
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs"
-              >
-                3
-              </Badge>
-            </Button>
+                "w-full",
+                isCollapsed ? "p-3 justify-center" : "justify-start px-3 py-2.5"
+              )} 
+            />
 
             {/* Help */}
             <Button
