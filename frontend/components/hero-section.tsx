@@ -23,7 +23,7 @@ import {
   RippleEffect,
   MouseFollower,
 } from "@/components/ui/motion-components";
-import { Zap, Shield, TrendingUp, Bot, Sparkles } from "lucide-react";
+import { Zap, Shield, TrendingUp, Bot, Sparkles, ChevronLeft, ChevronRight, Package, Truck, Globe, Clock } from "lucide-react";
 import { FooterSection } from "@/components/footer-section";
 
 const typingTexts = [
@@ -35,6 +35,7 @@ const typingTexts = [
 
 export function HeroSection() {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
@@ -44,6 +45,14 @@ export function HeroSection() {
     const interval = setInterval(() => {
       setCurrentTextIndex((prev) => (prev + 1) % typingTexts.length);
     }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto-advance carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentCarouselIndex((prev) => (prev + 1) % carouselItems.length);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -82,13 +91,90 @@ export function HeroSection() {
     },
   ];
 
+  const carouselItems = [
+    {
+      icon: Package,
+      title: "Package Tracking",
+      description: "Real-time visibility across your entire supply chain",
+      stats: "99.8% Accuracy",
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-400/30"
+    },
+    {
+      icon: Truck,
+      title: "Fleet Management",
+      description: "Optimize routes and reduce delivery times",
+      stats: "23% Faster Delivery",
+      color: "from-green-500 to-emerald-500",
+      bgColor: "bg-green-500/10",
+      borderColor: "border-green-400/30"
+    },
+    {
+      icon: Globe,
+      title: "Global Network",
+      description: "Seamless operations across 150+ countries",
+      stats: "150+ Countries",
+      color: "from-purple-500 to-pink-500",
+      bgColor: "bg-purple-500/10",
+      borderColor: "border-purple-400/30"
+    },
+    {
+      icon: Clock,
+      title: "24/7 Monitoring",
+      description: "Continuous AI surveillance and instant alerts",
+      stats: "24/7 Active",
+      color: "from-orange-500 to-red-500",
+      bgColor: "bg-orange-500/10",
+      borderColor: "border-orange-400/30"
+    }
+  ];
+
   return (
     <div className="relative">
       <motion.div
-        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
         style={{ y, opacity }}
       >
+        {/* Industrial Port Background Image */}
+        <div 
+          className="absolute inset-0 -z-10"
+          style={{
+            backgroundImage: 'url(/images/bernd-dittrich-huciLx_BveI-unsplash.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
+          {/* Adaptive Overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/50 dark:bg-black/50" />
+        </div>
+        
         <AnimatedBackground />
+        
+        {/* Floating Industrial Particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-blue-400/40 rounded-full"
+              initial={{
+                x: Math.random() * 1200,
+                y: Math.random() * 800,
+                opacity: 0
+              }}
+              animate={{
+                y: [null, -150],
+                opacity: [0, 1, 0]
+              }}
+              transition={{
+                duration: Math.random() * 4 + 3,
+                repeat: Infinity,
+                delay: Math.random() * 3
+              }}
+            />
+          ))}
+        </div>
 
         <MotionDiv
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
@@ -123,16 +209,16 @@ export function HeroSection() {
                 transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
                 <GradientText
-                  from="from-blue-600"
-                  to="to-purple-600"
+                  from="from-white"
+                  to="to-blue-200"
                   animated
-                  className="block"
+                  className="block drop-shadow-2xl"
                 >
                   ClearPath AI
                 </GradientText>
               </motion.div>
               <motion.span
-                className="block text-3xl md:text-5xl mt-4 text-foreground/80"
+                className="block text-3xl md:text-5xl mt-4 text-white drop-shadow-2xl font-semibold"
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{
@@ -156,7 +242,7 @@ export function HeroSection() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="text-xl md:text-2xl text-muted-foreground font-mono"
+                  className="text-xl md:text-2xl text-white font-mono drop-shadow-lg"
                 >
                   <TypewriterText
                     text={typingTexts[currentTextIndex]}
@@ -176,7 +262,7 @@ export function HeroSection() {
 
           {/* Description */}
           <motion.div variants={staggerItem}>
-            <MotionP className="text-lg md:text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+            <MotionP className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed drop-shadow-lg font-medium">
               Revolutionary Agentic AI system that detects, investigates, and
               recovers lost packages in real-time. Transform your logistics
               operations with autonomous intelligence.
@@ -300,6 +386,204 @@ export function HeroSection() {
                 </TiltCard>
               </motion.div>
             ))}
+          </motion.div>
+
+          {/* Premium Animated Carousel */}
+          <motion.div
+            className="mt-20 max-w-6xl mx-auto px-4"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.5 }}
+          >
+            {/* Carousel Header */}
+            <motion.div 
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.7 }}
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 drop-shadow-lg">
+                <GradientText from="from-blue-400" to="to-purple-400" animated>
+                  Core Capabilities
+                </GradientText>
+              </h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Discover the powerful features that make ClearPath AI the future of logistics
+              </p>
+            </motion.div>
+
+            <div className="relative">
+              {/* Main Carousel Container */}
+              <div className="relative h-96 overflow-hidden rounded-3xl backdrop-blur-xl bg-gradient-to-br from-white/5 via-white/10 to-white/5 border border-white/20 shadow-2xl">
+                {/* Animated Background Pattern */}
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 animate-pulse" />
+                  <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
+                </div>
+
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentCarouselIndex}
+                    initial={{ opacity: 0, x: 100, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -100, scale: 0.95 }}
+                    transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    className="absolute inset-0 flex items-center justify-center p-8"
+                  >
+                    <div className="text-center max-w-4xl">
+                      {/* Premium Icon Container */}
+                      <motion.div
+                        className="relative mb-8"
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      >
+                        {/* Glow Effect */}
+                        <div className={`absolute inset-0 w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br ${carouselItems[currentCarouselIndex].color} opacity-30 blur-xl`} />
+                        
+                        {/* Main Icon */}
+                        <motion.div
+                          className={`relative w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br ${carouselItems[currentCarouselIndex].color} flex items-center justify-center shadow-2xl border border-white/20`}
+                          whileHover={{ scale: 1.1, rotate: 360 }}
+                          transition={{ duration: 0.6 }}
+                        >
+                          {(() => {
+                            const IconComponent = carouselItems[currentCarouselIndex].icon;
+                            return <IconComponent className="w-12 h-12 text-white" />;
+                          })()}
+                          
+                          {/* Floating Particles around icon */}
+                          {[...Array(6)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-1 h-1 bg-white/60 rounded-full"
+                              style={{
+                                top: `${20 + Math.sin(i * 60 * Math.PI / 180) * 30}px`,
+                                left: `${20 + Math.cos(i * 60 * Math.PI / 180) * 30}px`,
+                              }}
+                              animate={{
+                                scale: [0, 1, 0],
+                                opacity: [0, 1, 0],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                              }}
+                            />
+                          ))}
+                        </motion.div>
+                      </motion.div>
+
+                      {/* Enhanced Title */}
+                      <motion.h3
+                        className="text-4xl md:text-5xl font-bold text-white mb-6 drop-shadow-2xl"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.5 }}
+                      >
+                        <GradientText from="from-white" to="to-blue-200" animated>
+                          {carouselItems[currentCarouselIndex].title}
+                        </GradientText>
+                      </motion.h3>
+
+                      {/* Enhanced Description */}
+                      <motion.p
+                        className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-lg"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.7 }}
+                      >
+                        {carouselItems[currentCarouselIndex].description}
+                      </motion.p>
+
+                      {/* Premium Stats Badge */}
+                      <motion.div
+                        className="inline-flex items-center space-x-4"
+                        initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.9 }}
+                      >
+                        <motion.div
+                          className={`px-8 py-4 rounded-2xl bg-gradient-to-r ${carouselItems[currentCarouselIndex].color} text-white font-bold text-xl shadow-2xl border border-white/20 backdrop-blur-sm`}
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {carouselItems[currentCarouselIndex].stats}
+                        </motion.div>
+                        
+                        {/* Animated Sparkle */}
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Sparkles className="w-8 h-8 text-yellow-400" />
+                        </motion.div>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Premium Navigation Arrows */}
+                <motion.button
+                  className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300 flex items-center justify-center shadow-xl group"
+                  onClick={() => setCurrentCarouselIndex((prev) => (prev - 1 + carouselItems.length) % carouselItems.length)}
+                  whileHover={{ scale: 1.1, x: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <ChevronLeft className="w-7 h-7 group-hover:text-blue-400 transition-colors" />
+                </motion.button>
+
+                <motion.button
+                  className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300 flex items-center justify-center shadow-xl group"
+                  onClick={() => setCurrentCarouselIndex((prev) => (prev + 1) % carouselItems.length)}
+                  whileHover={{ scale: 1.1, x: 2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <ChevronRight className="w-7 h-7 group-hover:text-blue-400 transition-colors" />
+                </motion.button>
+              </div>
+
+              {/* Premium Progress Indicator */}
+              <div className="flex justify-center mt-8 space-x-4">
+                {carouselItems.map((_, index) => (
+                  <motion.button
+                    key={index}
+                    className="relative group"
+                    onClick={() => setCurrentCarouselIndex(index)}
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <div className={`w-4 h-4 rounded-full transition-all duration-500 ${
+                      index === currentCarouselIndex 
+                        ? 'bg-white scale-125 shadow-lg' 
+                        : 'bg-white/40 hover:bg-white/60'
+                    }`} />
+                    
+                    {/* Animated Ring for Active Item */}
+                    {index === currentCarouselIndex && (
+                      <motion.div
+                        className="absolute inset-0 w-4 h-4 rounded-full border-2 border-white/60"
+                        animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Slide Counter */}
+              <motion.div 
+                className="text-center mt-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 2 }}
+              >
+                <span className="text-white/60 text-sm font-mono">
+                  {String(currentCarouselIndex + 1).padStart(2, '0')} / {String(carouselItems.length).padStart(2, '0')}
+                </span>
+              </motion.div>
+            </div>
           </motion.div>
 
           {/* Floating Elements */}
