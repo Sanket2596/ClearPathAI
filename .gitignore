@@ -62,7 +62,7 @@ Dockerfile
 docker-compose*.yml
 
 # Backend (if not needed for frontend deployment)
-backend/
+# backend/
 
 # Build artifacts
 frontend/.next/
