@@ -43,94 +43,29 @@ import {
   Grid3X3
 } from 'lucide-react'
 import { PackageDetailModal } from '@/components/packages/package-detail-modal'
+import { packageAPI, Package as ApiPackage, PackageStats, ApiError } from '@/lib/api'
 
-interface PackageData {
-  id: string
-  trackingNumber: string
-  sender: string
-  receiver: string
-  origin: string
-  destination: string
-  status: 'in_transit' | 'delivered' | 'delayed' | 'lost' | 'investigating'
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  lastScan: string
-  expectedDelivery: string
-  aiConfidence?: number
-  anomalyType?: string
-  investigationStatus?: string
-  weight: string
-  value: string
-  createdAt: string
-}
+// Convert API package to frontend format
+const convertApiPackage = (apiPackage: ApiPackage) => ({
+  id: apiPackage.id,
+  trackingNumber: apiPackage.tracking_number,
+  sender: apiPackage.sender_name,
+  receiver: apiPackage.receiver_name,
+  origin: apiPackage.origin,
+  destination: apiPackage.destination,
+  status: apiPackage.status,
+  priority: apiPackage.priority,
+  lastScan: apiPackage.lastScan,
+  expectedDelivery: apiPackage.expected_delivery ? new Date(apiPackage.expected_delivery).toLocaleString() : 'N/A',
+  aiConfidence: apiPackage.ai_confidence,
+  anomalyType: apiPackage.anomaly_type,
+  investigationStatus: apiPackage.investigation_status,
+  weight: apiPackage.weight_display,
+  value: apiPackage.value_display,
+  createdAt: apiPackage.createdAt
+})
 
-const mockPackages: PackageData[] = [
-  {
-    id: '1',
-    trackingNumber: 'CP-2024-001',
-    sender: 'TechCorp Inc.',
-    receiver: 'Global Solutions Ltd.',
-    origin: 'New York, NY',
-    destination: 'Boston, MA',
-    status: 'in_transit',
-    priority: 'high',
-    lastScan: '2 hours ago',
-    expectedDelivery: '2024-01-15 14:30',
-    aiConfidence: 94,
-    weight: '2.5 kg',
-    value: '$1,250',
-    createdAt: '2024-01-14 08:15'
-  },
-  {
-    id: '2',
-    trackingNumber: 'CP-2024-002',
-    sender: 'MedSupply Co.',
-    receiver: 'City Hospital',
-    origin: 'Philadelphia, PA',
-    destination: 'Boston, MA',
-    status: 'delivered',
-    priority: 'critical',
-    lastScan: '30 minutes ago',
-    expectedDelivery: '2024-01-15 12:00',
-    aiConfidence: 98,
-    weight: '0.8 kg',
-    value: '$3,400',
-    createdAt: '2024-01-14 06:30'
-  },
-  {
-    id: '3',
-    trackingNumber: 'CP-2024-003',
-    sender: 'AutoParts Direct',
-    receiver: 'Midwest Motors',
-    origin: 'Detroit, MI',
-    destination: 'Chicago, IL',
-    status: 'delayed',
-    priority: 'medium',
-    lastScan: '1 hour ago',
-    expectedDelivery: '2024-01-15 16:45',
-    anomalyType: 'Weather Delay',
-    weight: '15.2 kg',
-    value: '$890',
-    createdAt: '2024-01-13 14:20'
-  },
-  {
-    id: '4',
-    trackingNumber: 'CP-2024-004',
-    sender: 'Fashion Forward',
-    receiver: 'Style Boutique',
-    origin: 'San Francisco, CA',
-    destination: 'Los Angeles, CA',
-    status: 'investigating',
-    priority: 'high',
-    lastScan: '4 hours ago',
-    expectedDelivery: '2024-01-15 18:00',
-    anomalyType: 'Route Deviation',
-    investigationStatus: 'AI Agent Assigned',
-    aiConfidence: 76,
-    weight: '3.1 kg',
-    value: '$2,100',
-    createdAt: '2024-01-14 10:45'
-  }
-]
+type PackageData = ReturnType<typeof convertApiPackage>
 
 const statusConfig = {
   in_transit: {
@@ -183,15 +118,24 @@ const priorityConfig = {
 }
 
 export default function PackagesPage() {
-  const [packages, setPackages] = useState<PackageData[]>(mockPackages)
-  const [filteredPackages, setFilteredPackages] = useState<PackageData[]>(mockPackages)
+  const [packages, setPackages] = useState<PackageData[]>([])
+  const [filteredPackages, setFilteredPackages] = useState<PackageData[]>([])
+  const [packageStats, setPackageStats] = useState<PackageStats | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
   const [selectedPackage, setSelectedPackage] = useState<PackageData | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch packages and stats on component mount
+  useEffect(() => {
+    fetchPackages()
+    fetchStats()
+  }, [])
 
   // Filter packages based on search and filters
   useEffect(() => {
@@ -218,14 +162,63 @@ export default function PackagesPage() {
     setFilteredPackages(filtered)
   }, [searchTerm, statusFilter, priorityFilter, packages])
 
+  const fetchPackages = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const response = await packageAPI.getPackages({
+        search: searchTerm || undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        priority: priorityFilter !== 'all' ? priorityFilter : undefined,
+        page: 1,
+        size: 100
+      })
+      
+      const convertedPackages = response.packages.map(convertApiPackage)
+      setPackages(convertedPackages)
+    } catch (err) {
+      console.error('Failed to fetch packages:', err)
+      setError(err instanceof ApiError ? err.message : 'Failed to fetch packages')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const fetchStats = async () => {
+    try {
+      const stats = await packageAPI.getPackageStats()
+      setPackageStats(stats)
+    } catch (err) {
+      console.error('Failed to fetch stats:', err)
+    }
+  }
+
   const handleRefresh = async () => {
     setIsRefreshing(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsRefreshing(false)
+    try {
+      await packageAPI.refreshPackages()
+      await fetchPackages()
+      await fetchStats()
+    } catch (err) {
+      console.error('Failed to refresh packages:', err)
+      setError(err instanceof ApiError ? err.message : 'Failed to refresh packages')
+    } finally {
+      setIsRefreshing(false)
+    }
   }
 
   const getStatusStats = () => {
+    if (packageStats) {
+      return {
+        in_transit: packageStats.in_transit,
+        delivered: packageStats.delivered,
+        delayed: packageStats.delayed,
+        lost: packageStats.lost,
+        investigating: packageStats.investigating
+      }
+    }
+    
+    // Fallback to local calculation
     const stats = packages.reduce((acc, pkg) => {
       acc[pkg.status] = (acc[pkg.status] || 0) + 1
       return acc
@@ -247,6 +240,79 @@ export default function PackagesPage() {
 
   const handlePackageSelect = (pkg: PackageData) => {
     setSelectedPackage(pkg)
+  }
+
+  const handleExport = async (format: 'csv' | 'json') => {
+    try {
+      if (format === 'csv') {
+        const blob = await packageAPI.exportPackagesCSV({
+          search: searchTerm || undefined,
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          priority: priorityFilter !== 'all' ? priorityFilter : undefined,
+        })
+        
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `packages_export_${new Date().toISOString().split('T')[0]}.csv`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } else {
+        const data = await packageAPI.exportPackagesJSON({
+          search: searchTerm || undefined,
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          priority: priorityFilter !== 'all' ? priorityFilter : undefined,
+        })
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `packages_export_${new Date().toISOString().split('T')[0]}.json`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }
+    } catch (err) {
+      console.error('Failed to export packages:', err)
+      setError(err instanceof ApiError ? err.message : 'Failed to export packages')
+    }
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"
+          />
+          <p className="text-muted-foreground">Loading packages...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Failed to load packages</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={fetchPackages} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -312,10 +378,24 @@ export default function PackagesPage() {
             Refresh
           </Button>
           
-          <Button variant="outline" className="flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            Export
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => handleExport('csv')}
+            >
+              <Download className="w-4 h-4" />
+              CSV
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => handleExport('json')}
+            >
+              <Download className="w-4 h-4" />
+              JSON
+            </Button>
+          </div>
         </motion.div>
       </MotionDiv>
 
@@ -403,9 +483,24 @@ export default function PackagesPage() {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline" size="icon">
-                <Download className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => handleExport('csv')}
+                  title="Export as CSV"
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => handleExport('json')}
+                  title="Export as JSON"
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+              </div>
             </motion.div>
           </MotionDiv>
 
