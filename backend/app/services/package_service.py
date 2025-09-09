@@ -82,7 +82,7 @@ class PackageService:
         self.db.refresh(db_package)
         return db_package
     
-    def get_package(self, package_id: UUID) -> Optional[Package]:
+    def get_package(self, package_id: str) -> Optional[Package]:
         """Get package by ID"""
         return self.db.query(Package).filter(Package.id == package_id).first()
     
@@ -208,7 +208,7 @@ class PackageService:
             by_status=status_counts
         )
     
-    def add_tracking_event(self, package_id: UUID, event_data: TrackingEventCreate) -> TrackingEvent:
+    def add_tracking_event(self, package_id: str, event_data: TrackingEventCreate) -> TrackingEvent:
         """Add tracking event to package"""
         db_event = TrackingEvent(**event_data.dict())
         self.db.add(db_event)
@@ -224,7 +224,7 @@ class PackageService:
         self.db.refresh(db_event)
         return db_event
     
-    def get_package_tracking_events(self, package_id: UUID) -> List[TrackingEvent]:
+    def get_package_tracking_events(self, package_id: str) -> List[TrackingEvent]:
         """Get all tracking events for a package"""
         return self.db.query(TrackingEvent).filter(
             TrackingEvent.package_id == package_id

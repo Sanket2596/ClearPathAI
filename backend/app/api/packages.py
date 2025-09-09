@@ -131,7 +131,7 @@ async def delete_package(
 
 @router.post("/{package_id}/tracking", response_model=TrackingEventResponse)
 async def add_tracking_event(
-    package_id: UUID,
+    package_id: str,
     event_data: TrackingEventCreate,
     db: Session = Depends(get_db)
 ):
@@ -148,7 +148,7 @@ async def add_tracking_event(
 
 @router.get("/{package_id}/tracking", response_model=List[TrackingEventResponse])
 async def get_package_tracking_events(
-    package_id: UUID,
+    package_id: str,
     db: Session = Depends(get_db)
 ):
     """Get all tracking events for a package"""

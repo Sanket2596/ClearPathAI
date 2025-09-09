@@ -55,14 +55,25 @@ const convertApiPackage = (apiPackage: ApiPackage) => ({
   destination: apiPackage.destination,
   status: apiPackage.status,
   priority: apiPackage.priority,
-  lastScan: apiPackage.lastScan,
+  lastScan: apiPackage.lastScan || 'No scans',
   expectedDelivery: apiPackage.expected_delivery ? new Date(apiPackage.expected_delivery).toLocaleString() : 'N/A',
   aiConfidence: apiPackage.ai_confidence,
   anomalyType: apiPackage.anomaly_type,
   investigationStatus: apiPackage.investigation_status,
-  weight: apiPackage.weight_display,
-  value: apiPackage.value_display,
-  createdAt: apiPackage.createdAt
+  weight: `${apiPackage.weight} ${apiPackage.weight_unit}`,
+  value: `${apiPackage.value_currency} ${apiPackage.value.toFixed(2)}`,
+  createdAt: apiPackage.createdAt,
+  // Additional fields for modal
+  sender_address: apiPackage.sender_address,
+  receiver_address: apiPackage.receiver_address,
+  sender_phone: apiPackage.sender_phone,
+  sender_email: apiPackage.sender_email,
+  receiver_phone: apiPackage.receiver_phone,
+  receiver_email: apiPackage.receiver_email,
+  fragile: apiPackage.fragile,
+  hazardous: apiPackage.hazardous,
+  insurance_required: apiPackage.insurance_required,
+  signature_required: apiPackage.signature_required
 })
 
 type PackageData = ReturnType<typeof convertApiPackage>
@@ -648,6 +659,7 @@ export default function PackagesPage() {
       <PackageDetailModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        onRefresh={handleRefresh}
         packageData={selectedPackage}
       />
     </div>
