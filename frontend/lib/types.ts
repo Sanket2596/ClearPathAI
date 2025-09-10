@@ -18,14 +18,14 @@ export interface PackageData {
   value: string
   createdAt: string
   // Additional fields for modal compatibility
-  sender_address?: any
-  receiver_address?: any
+  sender_address: any
+  receiver_address: any
   sender_phone?: string
   sender_email?: string
   receiver_phone?: string
   receiver_email?: string
-  fragile?: boolean
-  hazardous?: boolean
-  insurance_required?: boolean
-  signature_required?: boolean
+  fragile: boolean
+  hazardous: boolean
+  insurance_required: boolean
+  signature_required: boolean
 }
