@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { InteractiveMap } from '@/components/map/interactive-map'
 import { PackageDetailModal } from '@/components/packages/package-detail-modal'
+import { PackageData } from '@/lib/types'
 import {
   Map,
   List,
@@ -20,25 +21,6 @@ import {
   Search,
   MoreVertical
 } from 'lucide-react'
-
-interface PackageData {
-  id: string
-  trackingNumber: string
-  sender: string
-  receiver: string
-  origin: string
-  destination: string
-  status: 'in_transit' | 'delivered' | 'delayed' | 'lost' | 'investigating'
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  lastScan: string
-  expectedDelivery: string
-  aiConfidence?: number
-  anomalyType?: string
-  investigationStatus?: string
-  weight: string
-  value: string
-  createdAt: string
-}
 
 interface PackagesMapViewProps {
   packages: PackageData[]

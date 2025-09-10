@@ -44,9 +44,10 @@ import {
 } from 'lucide-react'
 import { PackageDetailModal } from '@/components/packages/package-detail-modal'
 import { packageAPI, Package as ApiPackage, PackageStats, ApiError } from '@/lib/api'
+import { PackageData } from '@/lib/types'
 
 // Convert API package to frontend format
-const convertApiPackage = (apiPackage: ApiPackage) => ({
+const convertApiPackage = (apiPackage: ApiPackage): PackageData => ({
   id: apiPackage.id,
   trackingNumber: apiPackage.tracking_number,
   sender: apiPackage.sender_name,
@@ -57,9 +58,9 @@ const convertApiPackage = (apiPackage: ApiPackage) => ({
   priority: apiPackage.priority,
   lastScan: apiPackage.lastScan || 'No scans',
   expectedDelivery: apiPackage.expected_delivery ? new Date(apiPackage.expected_delivery).toLocaleString() : 'N/A',
-  aiConfidence: apiPackage.ai_confidence,
-  anomalyType: apiPackage.anomaly_type,
-  investigationStatus: apiPackage.investigation_status,
+  ...(apiPackage.ai_confidence !== undefined && { aiConfidence: apiPackage.ai_confidence }),
+  ...(apiPackage.anomaly_type !== undefined && { anomalyType: apiPackage.anomaly_type }),
+  ...(apiPackage.investigation_status !== undefined && { investigationStatus: apiPackage.investigation_status }),
   weight: `${apiPackage.weight} ${apiPackage.weight_unit}`,
   value: `${apiPackage.value_currency} ${apiPackage.value.toFixed(2)}`,
   createdAt: apiPackage.createdAt,
@@ -75,8 +76,6 @@ const convertApiPackage = (apiPackage: ApiPackage) => ({
   insurance_required: apiPackage.insurance_required,
   signature_required: apiPackage.signature_required
 })
-
-type PackageData = ReturnType<typeof convertApiPackage>
 
 const statusConfig = {
   in_transit: {
