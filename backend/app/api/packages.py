@@ -236,4 +236,4 @@ async def refresh_packages(db: Session = Depends(get_db)):
         "message": "Packages refreshed successfully",
         "stats": stats,
         "refreshed_at": datetime.utcnow().isoformat()
-    }
+    } 

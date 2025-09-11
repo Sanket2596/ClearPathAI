@@ -6,10 +6,12 @@ from app.models.package import Package, PackageStatus, PackagePriority
 from app.schemas.package import PackageCreate, PackageUpdate, PackageSearchParams, PackageStats, PackageResponse
 from app.schemas.tracking_event import TrackingEventCreate
 from app.models.tracking_event import TrackingEvent
+from app.websocket.event_broadcaster import event_broadcaster
 from datetime import datetime, timedelta
 import csv
 import io
 import json
+import asyncio
 
 class PackageService:
     def __init__(self, db: Session):
@@ -80,6 +82,17 @@ class PackageService:
         self.db.add(db_package)
         self.db.commit()
         self.db.refresh(db_package)
+        
+        # Broadcast package creation via WebSocket
+        asyncio.create_task(event_broadcaster.broadcast_package_update(
+            package_id=str(db_package.id),
+            tracking_number=db_package.tracking_number,
+            status=db_package.status.value,
+            location=db_package.origin,
+            estimated_delivery=db_package.estimated_delivery,
+            carrier=db_package.carrier
+        ))
+        
         return db_package
     
     def get_package(self, package_id: str) -> Optional[Package]:
@@ -162,6 +175,9 @@ class PackageService:
         if not db_package:
             return None
         
+        # Store old status for comparison
+        old_status = db_package.status.value
+        
         update_dict = update_data.dict(exclude_unset=True)
         for field, value in update_dict.items():
             setattr(db_package, field, value)
@@ -169,6 +185,18 @@ class PackageService:
         db_package.updated_at = datetime.utcnow()
         self.db.commit()
         self.db.refresh(db_package)
+        
+        # Broadcast package update via WebSocket if status changed
+        if old_status != db_package.status.value:
+            asyncio.create_task(event_broadcaster.broadcast_package_update(
+                package_id=str(db_package.id),
+                tracking_number=db_package.tracking_number,
+                status=db_package.status.value,
+                location=db_package.current_location or db_package.origin,
+                estimated_delivery=db_package.estimated_delivery,
+                carrier=db_package.carrier
+            ))
+        
         return db_package
     
     def delete_package(self, package_id: UUID) -> bool:

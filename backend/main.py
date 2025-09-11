@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from app.database import engine, get_db
 from app.models.package import Base
 from app.api.packages import router as packages_router
+from app.websocket import router as websocket_router
 
 # Create tables
 try:
@@ -44,6 +45,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(packages_router, prefix="/api/v1")
+app.include_router(websocket_router)
 
 @app.get("/")
 async def root():
