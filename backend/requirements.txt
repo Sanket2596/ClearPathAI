@@ -8,3 +8,12 @@ python-multipart==0.0.6
 alembic==1.13.1
 websockets==11.0.3
 redis==4.6.0
+# Authentication dependencies
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+httpx==0.25.2
+cryptography==41.0.7
+# Security and validation
+python-multipart==0.0.6
+bleach==6.1.0
+validators==0.22.0

@@ -1,6 +1,20 @@
 // API service for ClearPath AI Backend
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
+// Get auth token from Clerk
+async function getAuthToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const { getToken } = await import('@clerk/nextjs');
+    const token = await getToken();
+    return token;
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    return null;
+  }
+}
+
 export interface Package {
   id: string;
   tracking_number: string;
@@ -117,11 +131,21 @@ class ApiError extends Error {
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  // Get auth token
+  const token = await getAuthToken();
+  
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+  
+  // Add auth token if available
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
   const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
     ...options,
   });
 

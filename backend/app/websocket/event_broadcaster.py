@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class WebSocketEventBroadcaster:
     """Handles broadcasting of various events through WebSocket connections"""
+    # Publisher of the events/ messages for our pubsub system
     
     def __init__(self):
         self.connection_manager = connection_manager
