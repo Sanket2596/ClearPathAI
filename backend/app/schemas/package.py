@@ -250,7 +250,13 @@ class PackageSearchParams(BaseModel):
     destination: Optional[str] = None
     date_from: Optional[datetime] = None
     date_to: Optional[datetime] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
     page: int = 1
     size: int = 20
     sort_by: str = "created_at"
     sort_order: str = "desc"
+
+class BulkUpdateRequest(BaseModel):
+    package_ids: List[UUID]
+    update_data: PackageUpdate

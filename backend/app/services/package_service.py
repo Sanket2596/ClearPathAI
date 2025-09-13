@@ -307,3 +307,106 @@ class PackageService:
     def get_packages_by_priority(self, priority: PackagePriority) -> List[Package]:
         """Get packages by priority"""
         return self.db.query(Package).filter(Package.priority == priority).all()
+    
+    def bulk_update_packages(self, package_ids: List[UUID], update_data: PackageUpdate) -> Dict[str, Any]:
+        """Bulk update multiple packages"""
+        updated_packages = []
+        failed_updates = []
+        
+        for package_id in package_ids:
+            try:
+                package = self.update_package(package_id, update_data)
+                if package:
+                    updated_packages.append(self._package_to_response(package))
+                else:
+                    failed_updates.append(str(package_id))
+            except Exception as e:
+                failed_updates.append(str(package_id))
+        
+        return {
+            "updated_packages": updated_packages,
+            "updated_count": len(updated_packages),
+            "failed_count": len(failed_updates),
+            "failed_package_ids": failed_updates
+        }
+    
+    def get_packages_with_date_range(self, params: PackageSearchParams) -> Dict[str, Any]:
+        """Get packages with date range filtering"""
+        query = self.db.query(Package)
+        
+        # Apply filters
+        if params.search:
+            search_filter = or_(
+                Package.tracking_number.ilike(f"%{params.search}%"),
+                Package.sender_name.ilike(f"%{params.search}%"),
+                Package.receiver_name.ilike(f"%{params.search}%"),
+                Package.origin.ilike(f"%{params.search}%"),
+                Package.destination.ilike(f"%{params.search}%")
+            )
+            query = query.filter(search_filter)
+        
+        if params.status:
+            query = query.filter(Package.status == params.status)
+        
+        if params.priority:
+            query = query.filter(Package.priority == params.priority)
+        
+        if params.origin:
+            query = query.filter(Package.origin.ilike(f"%{params.origin}%"))
+        
+        if params.destination:
+            query = query.filter(Package.destination.ilike(f"%{params.destination}%"))
+        
+        # Handle date filtering
+        if params.start_date:
+            try:
+                start_date = datetime.strptime(params.start_date, "%Y-%m-%d")
+                query = query.filter(Package.created_at >= start_date)
+            except ValueError:
+                pass
+        
+        if params.end_date:
+            try:
+                end_date = datetime.strptime(params.end_date, "%Y-%m-%d")
+                query = query.filter(Package.created_at <= end_date)
+            except ValueError:
+                pass
+        
+        if params.date_from:
+            query = query.filter(Package.created_at >= params.date_from)
+        
+        if params.date_to:
+            query = query.filter(Package.created_at <= params.date_to)
+        
+        # Apply sorting
+        if params.sort_by == "created_at":
+            order_func = desc if params.sort_order == "desc" else asc
+            query = query.order_by(order_func(Package.created_at))
+        elif params.sort_by == "tracking_number":
+            order_func = desc if params.sort_order == "desc" else asc
+            query = query.order_by(order_func(Package.tracking_number))
+        elif params.sort_by == "status":
+            query = query.order_by(Package.status)
+        elif params.sort_by == "priority":
+            query = query.order_by(Package.priority)
+        
+        # Get total count
+        total = query.count()
+        
+        # Apply pagination
+        offset = (params.page - 1) * params.size
+        packages = query.offset(offset).limit(params.size).all()
+        
+        # Calculate pages
+        pages = (total + params.size - 1) // params.size
+        
+        # Convert packages to response format
+        package_responses = [self._package_to_response(pkg) for pkg in packages]
+        
+        return {
+            "packages": package_responses,
+            "total": total,
+            "page": params.page,
+            "size": params.size,
+            "pages": pages
+        }

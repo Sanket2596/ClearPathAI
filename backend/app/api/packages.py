@@ -9,7 +9,7 @@ import io
 from app.database import get_db
 from app.schemas.package import (
     PackageCreate, PackageUpdate, PackageResponse, PackageListResponse,
-    PackageSearchParams, PackageStats
+    PackageSearchParams, PackageStats, BulkUpdateRequest
 )
 from app.schemas.tracking_event import TrackingEventCreate, TrackingEventResponse
 from app.services.package_service import PackageService
@@ -160,7 +160,32 @@ async def delete_package(
     
     return {"message": "Package deleted successfully"}
 
-@router.post("/{package_id}/tracking", response_model=TrackingEventResponse)
+@router.put("/bulk-update")
+async def bulk_update_packages(
+    bulk_request: BulkUpdateRequest,
+    current_user: User = Depends(get_active_user),
+    db: Session = Depends(get_db)
+):
+    """Bulk update multiple packages (requires authentication)"""
+    service = PackageService(db)
+    
+    # Validate and sanitize update data
+    sanitized_data = InputValidator.validate_and_sanitize_package_data(bulk_request.update_data.dict())
+    
+    result = service.bulk_update_packages(
+        bulk_request.package_ids, 
+        PackageUpdate(**sanitized_data)
+    )
+    
+    return {
+        "message": f"Bulk update completed. {result['updated_count']} packages updated successfully.",
+        "updated_count": result["updated_count"],
+        "failed_count": result["failed_count"],
+        "failed_package_ids": result["failed_package_ids"],
+        "updated_packages": result["updated_packages"]
+    }
+
+@router.post("/{package_id}/tracking-events", response_model=TrackingEventResponse)
 async def add_tracking_event(
     package_id: str,
     event_data: TrackingEventCreate,
@@ -178,7 +203,7 @@ async def add_tracking_event(
     event = service.add_tracking_event(package_id, event_data)
     return event
 
-@router.get("/{package_id}/tracking", response_model=List[TrackingEventResponse])
+@router.get("/{package_id}/tracking-events", response_model=List[TrackingEventResponse])
 async def get_package_tracking_events(
     package_id: str,
     current_user: User = Depends(get_active_user),
@@ -194,6 +219,64 @@ async def get_package_tracking_events(
     
     events = service.get_package_tracking_events(package_id)
     return events
+
+@router.get("/export")
+async def export_packages(
+    format: str = Query("json", description="Export format (csv or json)"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    search: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    priority: Optional[str] = Query(None),
+    origin: Optional[str] = Query(None),
+    destination: Optional[str] = Query(None),
+    current_user: User = Depends(get_active_user),
+    db: Session = Depends(get_db)
+):
+    """Export packages in specified format with date range (requires authentication)"""
+    service = PackageService(db)
+    
+    # Validate and sanitize search parameters
+    search_params = {
+        'search': search,
+        'status': status,
+        'priority': priority,
+        'origin': origin,
+        'destination': destination,
+        'start_date': start_date,
+        'end_date': end_date,
+        'page': 1,
+        'size': 10000
+    }
+    
+    sanitized_params = InputValidator.validate_search_params(search_params)
+    params = PackageSearchParams(**sanitized_params)
+    
+    if format.lower() == "csv":
+        csv_content = service.export_packages_csv(params)
+        return StreamingResponse(
+            io.StringIO(csv_content),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=packages_export_{datetime.utcnow().strftime('%Y%m%d')}.csv"}
+        )
+    else:
+        result = service.get_packages_with_date_range(params)
+        packages = result["packages"]
+        
+        return {
+            "packages": packages,
+            "exported_at": datetime.utcnow().isoformat(),
+            "total": result["total"],
+            "filters": {
+                "start_date": start_date,
+                "end_date": end_date,
+                "search": search,
+                "status": status,
+                "priority": priority,
+                "origin": origin,
+                "destination": destination
+            }
+        }
 
 @router.get("/export/csv")
 async def export_packages_csv(

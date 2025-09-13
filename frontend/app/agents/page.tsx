@@ -6,8 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { GradientText } from '@/components/ui/gradient-text'
+import { useWebSocket } from '@/hooks/use-websocket'
 import {
   MotionDiv,
   staggerContainer,
@@ -47,7 +50,10 @@ import {
   BarChart3,
   Cpu,
   Network,
-  Timer
+  Timer,
+  Search as SearchIcon,
+  Loader2,
+  X
 } from 'lucide-react'
 
 // Types
@@ -92,6 +98,28 @@ interface AgentCollaboration {
     timestamp: string
     status: 'completed' | 'in_progress' | 'pending'
   }[]
+}
+
+// AI Investigator Types
+interface InvestigationResult {
+  investigation_id: string
+  package_id: string
+  investigation_type: string
+  findings: string[]
+  recommendations: string[]
+  confidence_score: number
+  priority: string
+  estimated_resolution_time?: string
+  next_actions: string[]
+  created_at: string
+}
+
+interface InvestigationRequest {
+  packageId: string
+  investigationType: string
+  severity: string
+  description: string
+  currentStatus: string
 }
 
 // Mock Data
@@ -286,6 +314,7 @@ const activityStatusConfig = {
 }
 
 export default function AIAgentsPage() {
+  const { isConnected, lastMessage, subscribe, unsubscribe } = useWebSocket()
   const [agents, setAgents] = useState<Agent[]>(mockAgents)
   const [activities, setActivities] = useState<AgentActivity[]>(mockActivities)
   const [searchTerm, setSearchTerm] = useState('')
@@ -293,6 +322,52 @@ export default function AIAgentsPage() {
   const [selectedAgent, setSelectedAgent] = useState<string>('all')
   const [expandedActivity, setExpandedActivity] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  // AI Investigator states
+  const [investigationModalOpen, setInvestigationModalOpen] = useState(false)
+  const [investigationRequest, setInvestigationRequest] = useState<InvestigationRequest>({
+    packageId: '',
+    investigationType: 'anomaly_analysis',
+    severity: 'medium',
+    description: '',
+    currentStatus: 'in_transit'
+  })
+  const [investigationResults, setInvestigationResults] = useState<InvestigationResult[]>([])
+  const [isInvestigating, setIsInvestigating] = useState(false)
+  const [currentInvestigation, setCurrentInvestigation] = useState<InvestigationResult | null>(null)
+
+  // WebSocket integration
+  useEffect(() => {
+    if (lastMessage) {
+      const message = typeof lastMessage === 'string' ? JSON.parse(lastMessage) : lastMessage
+      
+      if (message.type === 'AGENT_ACTIVITY') {
+        const newActivity: AgentActivity = {
+          id: Date.now().toString(),
+          agentId: message.data.agent_id || 'investigator-01',
+          agentName: 'Investigator Agent',
+          timestamp: new Date().toLocaleTimeString(),
+          action: message.data.action || 'Agent Activity',
+          details: message.data.details || 'Agent is working...',
+          confidence: message.data.confidence || 85,
+          packageId: message.data.package_id,
+          status: message.data.status === 'completed' ? 'success' : 'pending'
+        }
+        setActivities(prev => [newActivity, ...prev])
+      }
+      
+      if (message.type === 'INVESTIGATION_RESULT') {
+        setInvestigationResults(prev => [message.data, ...prev])
+        setCurrentInvestigation(message.data)
+        setIsInvestigating(false)
+      }
+    }
+  }, [lastMessage])
+
+  useEffect(() => {
+    subscribe('agents')
+    return () => unsubscribe('agents')
+  }, [subscribe, unsubscribe])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -306,6 +381,57 @@ export default function AIAgentsPage() {
         ? { ...agent, status: agent.status === 'active' ? 'paused' : 'active' }
         : agent
     ))
+  }
+
+  // AI Investigator functions
+  const startInvestigation = async () => {
+    if (!investigationRequest.packageId.trim()) return
+
+    setIsInvestigating(true)
+    try {
+      const response = await fetch(`/api/v1/agents/investigate/anomaly/${investigationRequest.packageId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          anomaly_type: investigationRequest.investigationType,
+          severity: investigationRequest.severity,
+          description: investigationRequest.description,
+          current_status: investigationRequest.currentStatus
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setInvestigationResults(prev => [result, ...prev])
+        setCurrentInvestigation(result)
+        setInvestigationModalOpen(false)
+        
+        // Update agent status to busy
+        setAgents(agents.map(agent => 
+          agent.id === 'investigator-01' 
+            ? { ...agent, status: 'busy', lastAction: 'Investigating package' }
+            : agent
+        ))
+      }
+    } catch (error) {
+      console.error('Investigation failed:', error)
+    } finally {
+      setIsInvestigating(false)
+    }
+  }
+
+  const getInvestigationStatus = async (packageId: string) => {
+    try {
+      const response = await fetch(`/api/v1/agents/investigations/${packageId}`)
+      if (response.ok) {
+        const result = await response.json()
+        setCurrentInvestigation(result)
+      }
+    } catch (error) {
+      console.error('Failed to get investigation status:', error)
+    }
   }
 
   const filteredActivities = activities.filter(activity => {
@@ -469,13 +595,115 @@ export default function AIAgentsPage() {
                         
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">Last: {agent.lastAction}</span>
-                          <Button
-                            size="sm"
-                            variant={agent.status === 'active' ? 'outline' : 'default'}
-                            onClick={() => toggleAgentStatus(agent.id)}
-                          >
-                            {agent.status === 'active' ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-                          </Button>
+                          <div className="flex gap-2">
+                            {agent.id === 'investigator-01' && (
+                              <Dialog open={investigationModalOpen} onOpenChange={setInvestigationModalOpen}>
+                                <DialogTrigger>
+                                  <Button size="sm" variant="default" className="bg-blue-600 hover:bg-blue-700">
+                                    <SearchIcon className="w-3 h-3 mr-1" />
+                                    Investigate
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-md">
+                                  <DialogHeader>
+                                    <DialogTitle className="flex items-center gap-2">
+                                      <Bot className="w-5 h-5" />
+                                      AI Investigation Request
+                                    </DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <div>
+                                      <label className="text-sm font-medium">Package ID</label>
+                                      <Input
+                                        placeholder="Enter package ID (e.g., PKG123)"
+                                        value={investigationRequest.packageId}
+                                        onChange={(e) => setInvestigationRequest(prev => ({ ...prev, packageId: e.target.value }))}
+                                      />
+                                    </div>
+                                    
+                                    <div>
+                                      <label className="text-sm font-medium">Investigation Type</label>
+                                      <Select 
+                                        value={investigationRequest.investigationType}
+                                        onValueChange={(value) => setInvestigationRequest(prev => ({ ...prev, investigationType: value }))}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="anomaly_analysis">Anomaly Analysis</SelectItem>
+                                          <SelectItem value="delay_investigation">Delay Investigation</SelectItem>
+                                          <SelectItem value="route_optimization">Route Optimization</SelectItem>
+                                          <SelectItem value="predictive_analysis">Predictive Analysis</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    
+                                    <div>
+                                      <label className="text-sm font-medium">Severity</label>
+                                      <Select 
+                                        value={investigationRequest.severity}
+                                        onValueChange={(value) => setInvestigationRequest(prev => ({ ...prev, severity: value }))}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="low">Low</SelectItem>
+                                          <SelectItem value="medium">Medium</SelectItem>
+                                          <SelectItem value="high">High</SelectItem>
+                                          <SelectItem value="critical">Critical</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    
+                                    <div>
+                                      <label className="text-sm font-medium">Description</label>
+                                      <Textarea
+                                        placeholder="Describe the issue or anomaly..."
+                                        value={investigationRequest.description}
+                                        onChange={(e) => setInvestigationRequest(prev => ({ ...prev, description: e.target.value }))}
+                                        rows={3}
+                                      />
+                                    </div>
+                                    
+                                    <div className="flex gap-2 pt-4">
+                                      <Button 
+                                        onClick={startInvestigation}
+                                        disabled={isInvestigating || !investigationRequest.packageId.trim()}
+                                        className="flex-1"
+                                      >
+                                        {isInvestigating ? (
+                                          <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Investigating...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <SearchIcon className="w-4 h-4 mr-2" />
+                                            Start Investigation
+                                          </>
+                                        )}
+                                      </Button>
+                                      <Button 
+                                        variant="outline" 
+                                        onClick={() => setInvestigationModalOpen(false)}
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                            <Button
+                              size="sm"
+                              variant={agent.status === 'active' ? 'outline' : 'default'}
+                              onClick={() => toggleAgentStatus(agent.id)}
+                            >
+                              {agent.status === 'active' ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -626,6 +854,156 @@ export default function AIAgentsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Investigation Results */}
+      {investigationResults.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <SearchIcon className="w-5 h-5 text-primary" />
+              Recent Investigations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {investigationResults.slice(0, 3).map((result) => (
+                <div key={result.investigation_id} className="border rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4 text-blue-600" />
+                      <span className="font-medium">Package {result.package_id}</span>
+                      <Badge variant="secondary">{result.investigation_type.replace('_', ' ')}</Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={
+                        result.priority === 'high' ? 'bg-red-100 text-red-800' :
+                        result.priority === 'medium' ? 'bg-orange-100 text-orange-800' :
+                        'bg-green-100 text-green-800'
+                      }>
+                        {result.priority} priority
+                      </Badge>
+                      <Badge variant="outline">
+                        {Math.round(result.confidence_score * 100)}% confidence
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-1">Findings:</h4>
+                      <ul className="text-sm space-y-1">
+                        {result.findings.slice(0, 2).map((finding, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                            {finding}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-1">Recommendations:</h4>
+                      <ul className="text-sm space-y-1">
+                        {result.recommendations.slice(0, 2).map((rec, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                            {rec}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(result.created_at).toLocaleString()}
+                    </span>
+                    <Button size="sm" variant="outline" onClick={() => setCurrentInvestigation(result)}>
+                      View Details
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Current Investigation Details Modal */}
+      {currentInvestigation && (
+        <Dialog open={!!currentInvestigation} onOpenChange={() => setCurrentInvestigation(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Bot className="w-5 h-5" />
+                Investigation Results - Package {currentInvestigation.package_id}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Investigation Type</h4>
+                  <p className="text-sm">{currentInvestigation.investigation_type.replace('_', ' ')}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Priority</h4>
+                  <Badge className={
+                    currentInvestigation.priority === 'high' ? 'bg-red-100 text-red-800' :
+                    currentInvestigation.priority === 'medium' ? 'bg-orange-100 text-orange-800' :
+                    'bg-green-100 text-green-800'
+                  }>
+                    {currentInvestigation.priority}
+                  </Badge>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Confidence Score</h4>
+                  <p className="text-sm">{Math.round(currentInvestigation.confidence_score * 100)}%</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Resolution Time</h4>
+                  <p className="text-sm">{currentInvestigation.estimated_resolution_time || 'Not specified'}</p>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Findings</h4>
+                <ul className="space-y-2">
+                  {currentInvestigation.findings.map((finding, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                      {finding}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Recommendations</h4>
+                <ul className="space-y-2">
+                  {currentInvestigation.recommendations.map((rec, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                      {rec}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Next Actions</h4>
+                <ul className="space-y-2">
+                  {currentInvestigation.next_actions.map((action, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0" />
+                      {action}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Agent Collaboration View */}
       <Card>

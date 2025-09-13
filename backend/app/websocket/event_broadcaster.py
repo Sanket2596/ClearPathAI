@@ -16,6 +16,7 @@ from app.schemas.websocket import (
     MapUpdateData,
     SystemHealthData
 )
+from app.services.agent_service import AgentService
 
 logger = logging.getLogger(__name__)
 
@@ -316,6 +317,96 @@ class WebSocketEventBroadcaster:
             
         except Exception as e:
             logger.error(f"Error broadcasting system health: {e}")
+    
+    async def broadcast_agent_investigation_started(
+        self,
+        package_id: str,
+        investigation_type: str,
+        agent_id: str = "investigator_agent"
+    ):
+        """Broadcast that an AI agent has started an investigation"""
+        try:
+            activity_data = AgentActivityData(
+                agent_id=agent_id,
+                action="investigation_started",
+                package_id=package_id,
+                status="active",
+                performance_metrics={
+                    "investigation_type": investigation_type,
+                    "started_at": datetime.utcnow().isoformat()
+                }
+            )
+            
+            message = WebSocketMessage(
+                type=WebSocketMessageType.AGENT_ACTIVITY,
+                data=activity_data.model_dump(),
+                timestamp=datetime.utcnow()
+            )
+            
+            await self.connection_manager.broadcast_message(
+                message,
+                subscription_type="agent_activity"
+            )
+            
+            logger.info(f"Broadcasted agent investigation started for {package_id}")
+            
+        except Exception as e:
+            logger.error(f"Error broadcasting agent investigation started: {e}")
+    
+    async def broadcast_agent_investigation_completed(
+        self,
+        package_id: str,
+        investigation_id: str,
+        findings: list,
+        recommendations: list,
+        confidence_score: float,
+        agent_id: str = "investigator_agent"
+    ):
+        """Broadcast that an AI agent has completed an investigation"""
+        try:
+            activity_data = AgentActivityData(
+                agent_id=agent_id,
+                action="investigation_completed",
+                package_id=package_id,
+                status="completed",
+                performance_metrics={
+                    "investigation_id": investigation_id,
+                    "findings_count": len(findings),
+                    "recommendations_count": len(recommendations),
+                    "confidence_score": confidence_score,
+                    "completed_at": datetime.utcnow().isoformat()
+                }
+            )
+            
+            message = WebSocketMessage(
+                type=WebSocketMessageType.AGENT_ACTIVITY,
+                data=activity_data.model_dump(),
+                timestamp=datetime.utcnow()
+            )
+            
+            await self.connection_manager.broadcast_message(
+                message,
+                subscription_type="agent_activity"
+            )
+            
+            # Also broadcast as recovery suggestion
+            await self.broadcast_recovery_suggestion(
+                package_id=package_id,
+                issue=f"AI Investigation Complete",
+                ai_suggestion={
+                    "investigation_id": investigation_id,
+                    "findings": findings,
+                    "recommendations": recommendations,
+                    "confidence": confidence_score,
+                    "agent_id": agent_id
+                },
+                confidence=confidence_score
+            )
+            
+            logger.info(f"Broadcasted agent investigation completed for {package_id}")
+            
+        except Exception as e:
+            logger.error(f"Error broadcasting agent investigation completed: {e}")
 
 # Global event broadcaster instance
 event_broadcaster = WebSocketEventBroadcaster()

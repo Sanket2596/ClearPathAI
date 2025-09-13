@@ -12,6 +12,7 @@ from app.database import engine, get_db
 from app.models.package import Base
 from app.models.user import User
 from app.api.packages import router as packages_router
+from app.api.agents import router as agents_router
 from app.websocket import router as websocket_router
 
 # Create tables
@@ -77,6 +78,7 @@ async def rate_limit_middleware(request: Request, call_next):
 
 # Include routers
 app.include_router(packages_router, prefix="/api/v1")
+app.include_router(agents_router, prefix="/api/v1")
 app.include_router(websocket_router)
 
 @app.get("/")

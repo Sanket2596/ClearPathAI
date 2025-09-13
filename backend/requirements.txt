@@ -8,6 +8,11 @@ python-multipart==0.0.6
 alembic==1.13.1
 websockets==11.0.3
 redis==4.6.0
+langchain==0.1.0
+langchain-openai==0.0.5
+langchain-community==0.0.10
+tiktoken==0.5.2
+pydantic-settings==2.1.0
 # Authentication dependencies
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
