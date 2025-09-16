@@ -6,9 +6,6 @@ pydantic==2.5.0
 python-dotenv==1.0.0
 python-multipart==0.0.6
 alembic==1.13.1
-websockets==11.0.3
-redis==4.6.0
-pydantic-settings==2.1.0
 # Authentication dependencies
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4

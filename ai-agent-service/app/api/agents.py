@@ -1,6 +1,5 @@
 """
 API endpoints for AI agents
-Now uses the AI Agent Service microservice
 """
 
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
@@ -11,7 +10,7 @@ from datetime import datetime
 
 from app.database import get_db
 from app.services.agent_service import AgentService
-from app.websocket.event_broadcaster import event_broadcaster
+from app.agents.investigator_agent import InvestigationType, InvestigationResult
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
@@ -63,36 +62,27 @@ async def investigate_anomaly(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Investigate a package anomaly using AI agent microservice"""
+    """Investigate a package anomaly using AI agent"""
     try:
         agent_service = AgentService(db)
         
         # Convert Pydantic model to dict
         anomaly_dict = anomaly_data.dict()
         
-        # Process investigation
+        # Process investigation in background
         investigation_result = await agent_service.process_anomaly(package_id, anomaly_dict)
         
-        # Broadcast notification about investigation completion
-        await event_broadcaster.broadcast_notification(
-            notification_id=f"investigation_complete_{package_id}",
-            title="Investigation Complete",
-            message=f"AI investigation completed for package {package_id}",
-            priority="normal",
-            category="investigation"
-        )
-        
         return InvestigationResponse(
-            investigation_id=investigation_result["investigation_id"],
-            package_id=investigation_result["package_id"],
-            investigation_type=investigation_result["investigation_type"],
-            findings=investigation_result["findings"],
-            recommendations=investigation_result["recommendations"],
-            confidence_score=investigation_result["confidence_score"],
-            priority=investigation_result["priority"],
-            estimated_resolution_time=investigation_result["estimated_resolution_time"],
-            next_actions=investigation_result["next_actions"],
-            created_at=datetime.fromisoformat(investigation_result["created_at"])
+            investigation_id=investigation_result.investigation_id,
+            package_id=investigation_result.package_id,
+            investigation_type=investigation_result.investigation_type.value,
+            findings=investigation_result.findings,
+            recommendations=investigation_result.recommendations,
+            confidence_score=investigation_result.confidence_score,
+            priority=investigation_result.priority,
+            estimated_resolution_time=investigation_result.estimated_resolution_time,
+            next_actions=investigation_result.next_actions,
+            created_at=investigation_result.created_at
         )
         
     except Exception as e:
@@ -105,7 +95,7 @@ async def investigate_delay(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Investigate a package delay using AI agent microservice"""
+    """Investigate a package delay using AI agent"""
     try:
         agent_service = AgentService(db)
         
@@ -116,16 +106,16 @@ async def investigate_delay(
         investigation_result = await agent_service.process_delay(package_id, delay_dict)
         
         return InvestigationResponse(
-            investigation_id=investigation_result["investigation_id"],
-            package_id=investigation_result["package_id"],
-            investigation_type=investigation_result["investigation_type"],
-            findings=investigation_result["findings"],
-            recommendations=investigation_result["recommendations"],
-            confidence_score=investigation_result["confidence_score"],
-            priority=investigation_result["priority"],
-            estimated_resolution_time=investigation_result["estimated_resolution_time"],
-            next_actions=investigation_result["next_actions"],
-            created_at=datetime.fromisoformat(investigation_result["created_at"])
+            investigation_id=investigation_result.investigation_id,
+            package_id=investigation_result.package_id,
+            investigation_type=investigation_result.investigation_type.value,
+            findings=investigation_result.findings,
+            recommendations=investigation_result.recommendations,
+            confidence_score=investigation_result.confidence_score,
+            priority=investigation_result.priority,
+            estimated_resolution_time=investigation_result.estimated_resolution_time,
+            next_actions=investigation_result.next_actions,
+            created_at=investigation_result.created_at
         )
         
     except Exception as e:
@@ -138,7 +128,7 @@ async def optimize_route(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Optimize package route using AI agent microservice"""
+    """Optimize package route using AI agent"""
     try:
         agent_service = AgentService(db)
         
@@ -149,16 +139,16 @@ async def optimize_route(
         investigation_result = await agent_service.process_route_optimization(package_id, route_dict)
         
         return InvestigationResponse(
-            investigation_id=investigation_result["investigation_id"],
-            package_id=investigation_result["package_id"],
-            investigation_type=investigation_result["investigation_type"],
-            findings=investigation_result["findings"],
-            recommendations=investigation_result["recommendations"],
-            confidence_score=investigation_result["confidence_score"],
-            priority=investigation_result["priority"],
-            estimated_resolution_time=investigation_result["estimated_resolution_time"],
-            next_actions=investigation_result["next_actions"],
-            created_at=datetime.fromisoformat(investigation_result["created_at"])
+            investigation_id=investigation_result.investigation_id,
+            package_id=investigation_result.package_id,
+            investigation_type=investigation_result.investigation_type.value,
+            findings=investigation_result.findings,
+            recommendations=investigation_result.recommendations,
+            confidence_score=investigation_result.confidence_score,
+            priority=investigation_result.priority,
+            estimated_resolution_time=investigation_result.estimated_resolution_time,
+            next_actions=investigation_result.next_actions,
+            created_at=investigation_result.created_at
         )
         
     except Exception as e:
@@ -171,7 +161,7 @@ async def analyze_predictive(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Perform predictive analysis using AI agent microservice"""
+    """Perform predictive analysis using AI agent"""
     try:
         agent_service = AgentService(db)
         
@@ -182,16 +172,16 @@ async def analyze_predictive(
         investigation_result = await agent_service.process_predictive_analysis(package_id, prediction_dict)
         
         return InvestigationResponse(
-            investigation_id=investigation_result["investigation_id"],
-            package_id=investigation_result["package_id"],
-            investigation_type=investigation_result["investigation_type"],
-            findings=investigation_result["findings"],
-            recommendations=investigation_result["recommendations"],
-            confidence_score=investigation_result["confidence_score"],
-            priority=investigation_result["priority"],
-            estimated_resolution_time=investigation_result["estimated_resolution_time"],
-            next_actions=investigation_result["next_actions"],
-            created_at=datetime.fromisoformat(investigation_result["created_at"])
+            investigation_id=investigation_result.investigation_id,
+            package_id=investigation_result.package_id,
+            investigation_type=investigation_result.investigation_type.value,
+            findings=investigation_result.findings,
+            recommendations=investigation_result.recommendations,
+            confidence_score=investigation_result.confidence_score,
+            priority=investigation_result.priority,
+            estimated_resolution_time=investigation_result.estimated_resolution_time,
+            next_actions=investigation_result.next_actions,
+            created_at=investigation_result.created_at
         )
         
     except Exception as e:
@@ -211,16 +201,16 @@ async def get_investigation_status(
             raise HTTPException(status_code=404, detail="No investigation found for this package")
         
         return InvestigationResponse(
-            investigation_id=investigation["investigation_id"],
-            package_id=investigation["package_id"],
-            investigation_type=investigation["investigation_type"],
-            findings=investigation["findings"],
-            recommendations=investigation["recommendations"],
-            confidence_score=investigation["confidence_score"],
-            priority=investigation["priority"],
-            estimated_resolution_time=investigation["estimated_resolution_time"],
-            next_actions=investigation["next_actions"],
-            created_at=datetime.fromisoformat(investigation["created_at"])
+            investigation_id=investigation.investigation_id,
+            package_id=investigation.package_id,
+            investigation_type=investigation.investigation_type.value,
+            findings=investigation.findings,
+            recommendations=investigation.recommendations,
+            confidence_score=investigation.confidence_score,
+            priority=investigation.priority,
+            estimated_resolution_time=investigation.estimated_resolution_time,
+            next_actions=investigation.next_actions,
+            created_at=investigation.created_at
         )
         
     except HTTPException:
@@ -241,22 +231,26 @@ async def get_all_investigations(
         if priority:
             investigations = agent_service.get_investigations_by_priority(priority)
         elif investigation_type:
-            investigations = agent_service.get_investigations_by_type(investigation_type)
+            try:
+                inv_type = InvestigationType(investigation_type)
+                investigations = agent_service.get_investigations_by_type(inv_type)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid investigation type")
         else:
             investigations = agent_service.get_all_investigations()
         
         return [
             InvestigationResponse(
-                investigation_id=inv["investigation_id"],
-                package_id=inv["package_id"],
-                investigation_type=inv["investigation_type"],
-                findings=inv["findings"],
-                recommendations=inv["recommendations"],
-                confidence_score=inv["confidence_score"],
-                priority=inv["priority"],
-                estimated_resolution_time=inv["estimated_resolution_time"],
-                next_actions=inv["next_actions"],
-                created_at=datetime.fromisoformat(inv["created_at"])
+                investigation_id=inv.investigation_id,
+                package_id=inv.package_id,
+                investigation_type=inv.investigation_type.value,
+                findings=inv.findings,
+                recommendations=inv.recommendations,
+                confidence_score=inv.confidence_score,
+                priority=inv.priority,
+                estimated_resolution_time=inv.estimated_resolution_time,
+                next_actions=inv.next_actions,
+                created_at=inv.created_at
             )
             for inv in investigations
         ]

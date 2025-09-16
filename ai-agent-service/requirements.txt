@@ -5,10 +5,11 @@ psycopg2-binary==2.9.9
 pydantic==2.5.0
 python-dotenv==1.0.0
 python-multipart==0.0.6
-alembic==1.13.1
-websockets==11.0.3
-redis==4.6.0
-pydantic-settings==2.1.0
+# AI and LangChain dependencies
+langchain==0.1.0
+langchain-openai==0.0.5
+langchain-community==0.0.10
+tiktoken==0.5.2
 # Authentication dependencies
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
@@ -17,3 +18,9 @@ cryptography==41.0.7
 # Security and validation
 bleach==6.1.0
 validators==0.22.0
+# MCP (Model Context Protocol) dependencies
+mcp==1.0.0
+mcp-server==0.1.0
+# Additional tool dependencies
+requests==2.31.0
+aiohttp==3.9.1

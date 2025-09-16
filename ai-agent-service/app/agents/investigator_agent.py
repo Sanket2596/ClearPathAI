@@ -24,10 +24,8 @@ from langchain.schema import AgentAction, AgentFinish
 import tiktoken
 
 from app.database import get_db
-from app.models.package import Package, PackageStatus
-from app.models.tracking_event import TrackingEvent
-from app.websocket.event_broadcaster import event_broadcaster
-from app.services.package_service import PackageService
+from app.services.agent_service import AgentService
+from app.agents.mcp_tools import get_mcp_tools
 
 # Token optimization configuration
 MAX_TOKENS_PER_REQUEST = 2000
@@ -114,93 +112,7 @@ class TokenOptimizer:
         
         return optimized
 
-class PackageDataTool(BaseTool):
-    """Tool for retrieving package data"""
-    
-    name = "get_package_data"
-    description = "Retrieve detailed package information including status, location, and tracking history"
-    
-    def __init__(self, db_session):
-        super().__init__()
-        self.db_session = db_session
-        self.package_service = PackageService(db_session)
-    
-    def _run(self, package_id: str) -> str:
-        """Retrieve package data"""
-        try:
-            package = self.package_service.get_package(package_id)
-            if not package:
-                return f"Package {package_id} not found"
-            
-            # Get tracking events
-            tracking_events = self.db_session.query(TrackingEvent).filter(
-                TrackingEvent.package_id == package_id
-            ).order_by(TrackingEvent.timestamp.desc()).limit(10).all()
-            
-            package_data = {
-                "package_id": str(package.id),
-                "tracking_number": package.tracking_number,
-                "status": package.status.value,
-                "origin": package.origin,
-                "destination": package.destination,
-                "current_location": package.current_location,
-                "estimated_delivery": package.estimated_delivery.isoformat() if package.estimated_delivery else None,
-                "priority": package.priority.value,
-                "carrier": package.carrier,
-                "weight": package.weight,
-                "created_at": package.created_at.isoformat(),
-                "updated_at": package.updated_at.isoformat(),
-                "tracking_events": [
-                    {
-                        "event_type": event.event_type,
-                        "location": event.location,
-                        "timestamp": event.timestamp.isoformat(),
-                        "description": event.description
-                    }
-                    for event in tracking_events
-                ]
-            }
-            
-            return json.dumps(package_data, indent=2)
-        except Exception as e:
-            return f"Error retrieving package data: {str(e)}"
-
-class WeatherDataTool(BaseTool):
-    """Tool for retrieving weather data (mock implementation)"""
-    
-    name = "get_weather_data"
-    description = "Get current weather conditions for a specific location"
-    
-    def _run(self, location: str) -> str:
-        """Get weather data for location"""
-        # Mock weather data - in production, integrate with weather API
-        weather_data = {
-            "location": location,
-            "temperature": "22°C",
-            "conditions": "Clear",
-            "wind_speed": "15 km/h",
-            "visibility": "10 km",
-            "weather_impact": "No significant impact on delivery"
-        }
-        return json.dumps(weather_data, indent=2)
-
-class TrafficDataTool(BaseTool):
-    """Tool for retrieving traffic data (mock implementation)"""
-    
-    name = "get_traffic_data"
-    description = "Get current traffic conditions for a route"
-    
-    def _run(self, route: str) -> str:
-        """Get traffic data for route"""
-        # Mock traffic data - in production, integrate with traffic API
-        traffic_data = {
-            "route": route,
-            "current_delay": "15 minutes",
-            "traffic_level": "Moderate",
-            "incidents": [],
-            "recommended_alternatives": ["Route A", "Route B"]
-        }
-        return json.dumps(traffic_data, indent=2)
+# Old tool implementations removed - now using MCP tools
 
 class InvestigationCallbackHandler(BaseCallbackHandler):
     """Callback handler for agent execution"""
@@ -226,7 +138,6 @@ class InvestigatorAgent:
     
     def __init__(self, db_session):
         self.db_session = db_session
-        self.package_service = PackageService(db_session)
         self.token_optimizer = TokenOptimizer()
         
         # Initialize LLM with optimized settings
@@ -237,12 +148,8 @@ class InvestigatorAgent:
             openai_api_key=os.getenv("OPENAI_API_KEY")
         )
         
-        # Initialize tools
-        self.tools = [
-            PackageDataTool(db_session),
-            WeatherDataTool(),
-            TrafficDataTool()
-        ]
+        # Initialize MCP tools
+        self.tools = get_mcp_tools()
         
         # Create agent with ReAct pattern
         self.agent = self._create_agent()
@@ -380,9 +287,6 @@ Be concise and focus on actionable insights.
                 created_at=datetime.utcnow()
             )
             
-            # Broadcast investigation result
-            await self._broadcast_investigation_result(investigation_result)
-            
             return investigation_result
             
         except Exception as e:
@@ -472,35 +376,6 @@ Be concise and focus on actionable insights.
                 actions.append("Increase monitoring frequency")
         
         return actions[:3]  # Limit to 3 actions
-    
-    async def _broadcast_investigation_result(self, result: InvestigationResult):
-        """Broadcast investigation result via WebSocket"""
-        try:
-            await event_broadcaster.broadcast_notification(
-                notification_id=f"investigation_{result.investigation_id}",
-                title="Investigation Complete",
-                message=f"Investigation completed for package {result.package_id}. Priority: {result.priority}",
-                priority=result.priority,
-                category="investigation"
-            )
-            
-            # Broadcast detailed results
-            await event_broadcaster.broadcast_recovery_suggestion(
-                package_id=result.package_id,
-                issue=f"Investigation: {result.investigation_type.value}",
-                ai_suggestion={
-                    "findings": result.findings,
-                    "recommendations": result.recommendations,
-                    "confidence": result.confidence_score,
-                    "priority": result.priority,
-                    "estimated_resolution": result.estimated_resolution_time,
-                    "next_actions": result.next_actions
-                },
-                confidence=result.confidence_score
-            )
-            
-        except Exception as e:
-            print(f"Failed to broadcast investigation result: {str(e)}")
     
     def _create_error_result(self, investigation_id: str, package_id: str, error: str) -> InvestigationResult:
         """Create error result when investigation fails"""
